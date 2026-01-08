@@ -1,0 +1,174 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Introduction}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Lecture 1}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{General content overview}
+\begin{itemize}
+    \item What is marketing?
+    \begin{itemize}
+        \item Why and when is data science applied in marketing?
+    \end{itemize}
+    \item Foundations of causal inference
+    \begin{itemize}
+        \item What is causality? Differences between causal, predictive and descriptive questions 
+        \item Rubin's potential outcome framework, different types of treatment effects 
+        \item Randomization, selection effects, and basic inference 
+        \item Basics of causal diagrams (DAGs), good and bad controls 
+    \end{itemize}
+    \item Experimental designs 
+    \begin{itemize}
+        \item Field vs. lab vs natural experiments, between vs. within subject design, multi-factorial design 
+        \item internal and expernal validity of different designs
+    \end{itemize}
+    \item Quasi-experimental and observational methods for causal inference
+    \begin{itemize}
+        \item regression adjustment, matching and weighing, causal ML (double debiased ML), instrumental variables (IVs) and IV-free methods, difference-in-difference, synthetic control, and synthetic difference-in-difference, regression discontinuity design
+    \end{itemize}
+\end{itemize}
+
+\section{Causal questions}
+\subsection{What is causality?}
+\begin{itemize}
+    \item In this course, we are not concerned about the nature of causation or philosophical foundations of causality 
+    \item But, how to measure the effect of a cause? 
+    \begin{itemize}
+        \item To measure causal effects, we need a presumed effect (Y) and a presumed cause (X)
+    \end{itemize}
+    \item In social sciences (including business and marketing), causal questions typically matter more than associational questions 
+    \item We usually do not only want to learn, if two concepts are related 
+    \item We want to learn if changing one aspect leads to an outcome
+    \begin{itemize}
+        \item Inform managerial or policy decisions
+    \end{itemize}
+\end{itemize}
+\textbf{Examples}
+\begin{itemize}
+    \item Descriptive (correlational) question: Do countries with higher minimum wages have less poverty?
+    \item Causal question: does raising the minimum wage reduce poverty?
+    \item Descriprive (correlational) question: do people who sleep less die early?
+    \item Causal question: does a lack of sleep reduce the (expected) lifetime?
+\end{itemize}
+\newpage 
+\subsection{Causal questions in marketing}
+\begin{itemize}
+    \item we do not only want to know... 
+    \begin{itemize}
+        \item if people who saw an advertisement buy more rp
+        \item This is all just a bunch of nonsense – in the regard that this is all very obvious and self-insisting. I will only take notes on stuff that I do not know 
+    \end{itemize}
+\end{itemize}
+\section{Another view on causality}
+\begin{itemize}
+    \item Three classic conditions for causality from Kenny (1979):
+    \begin{enumerate}
+        \item X must precede Y temporally 
+        \item X must be reliably correlated with Y (beyond chance)
+        \item The relation between X and Y must not be spurious (based on false reasoning or information that is not true)
+    \end{enumerate}
+\end{itemize}
+\subsection{The three classic conditions}
+\subsubsection{X must precede Y temporally}
+\begin{itemize}
+    \item Changes in X must happen before we observe the changes in Y 
+    \item A typical criticism about condition 1 is that it ignores the possibility of ``simultaneity''
+    \begin{itemize}
+        \item philosophical debate about whether instantaneous causation is possible 
+        \item reciprocal relationship (feedback-loops)
+        \begin{itemize}
+            \item temporal precedence does not forbid that Y causes X in return, but just at a different point in time 
+            \item $X_{t1} \to X_{t2} \to X_{t3} ... $
+        \end{itemize}
+        \item simultaneity is often just a problem when the available temporal resolution of our measurement is not large enough to distinguish cause and effect 
+    \end{itemize}
+    \item it is also one of the most common fallacies to think that close temporal proximity implies causation
+\end{itemize}
+\newpage 
+\subsubsection{X must be reliably correlated with Y (beyond chance)}
+\begin{itemize}
+    \item generally, causation requires some co-variation (correlation) or co-occurence of events
+    \begin{itemize}
+        \item if we observe A, we also observe B
+        \item when the cause changes, we can also observe a change in the effect 
+        \item when we press the light button, the light goes off 
+        \item when we reduce advertising budget, sales go down 
+        \item when we implement a loyalty program, sales increase 
+    \end{itemize}
+    \item however, co-occurence is neither necessary nor sufficient 
+    \item just because people who drown and the number of movies Nic Cage is starred in are correlated, does not mean that Nic Cage drowns people
+    \item Another problem: X can cause Y, even in the absence of any observable correlation in the data 
+    \begin{itemize}
+        \item ... in the absence of an observable main effect
+        \item e.g., effect heterogeneity (moderation); competitive mediation; non-linear relations
+    \end{itemize}
+    \item Kenny (2004) speaks more generally about ``the presence of a functional relationship between cause and effect''
+    \begin{itemize}
+        \item ``two variables are independent if knowing the value of one variable provides no information about the value of the other variable''
+        \item functional relationship can be more complex that linear / correlational
+    \end{itemize}
+\end{itemize}
+\subsubsection{The relation between X and Y must not be spurious}
+\begin{itemize}
+    \item The relation is not explained by other causes 
+    \begin{itemize}
+        \item typical correlation vs. causation problem 
+    \end{itemize}
+    \item this will be one of our main concerns during this course 
+    \begin{itemize}
+        \item how can we achieve that the relationship between X and Y is not confounded by other variables?
+    \end{itemize}
+\end{itemize}
+\subsection{Confounder}
+\begin{itemize}
+    \item Z is a confounder to the X-Y relationship if it influences both X and Y 
+    \begin{itemize}
+        \item Z is a common cause of both X and Y 
+    \end{itemize}
+    \item an observed correlation between X and Y partly (or only) exists because of Z
+\end{itemize}
+\newpage 
+\section{Causal vs. non-causal wording}
+\begin{itemize}
+    \item There are lots of words that are generally taken to imply causality, as well as words that describe relationships without implying causality.
+    \item A causal statement has two components: a cause and and effect 
+    \item Causal wording 
+    \begin{itemize}
+        \item we can replace X ``causes'' Y by... 
+
+        affects, increases, decreases, changes, leads to, improves
+    \end{itemize}
+    \item non causal wording (i.e., correlational), but often falsely understood to be causal 
+    \begin{itemize}
+        \item X and Y are associated, related, tend to occur together, X is linked to Y, X predicts Y, etc
+    \end{itemize}
+\end{itemize}
+\section{Causal vs. predictive}
+\begin{itemize}
+    \item In this course, we want to understand whether A causes B 
+    \item the questions whether A can predict B is somthing different 
+    \item descriptive question: do countries with higher minimum wage have less poverty?
+    \item causal question: does 
+\end{itemize}
+
+\end{document}
