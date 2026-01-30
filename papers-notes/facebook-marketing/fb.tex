@@ -1,0 +1,113 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{A Comparison of Approaches to Advertising Measurement:\\Evidence from Big Field Experiments at Facebook}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Paper Notes}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{About}
+This paper is about comparing approaches to advertising measurement. They address the measurement of causal effects of digital advertising, mentioning the fact that unobservable factors make exposure endogenous, and that the effect of advertising on outcomes tends to be small. 
+\begin{itemize}
+    \item Few online ad campaigns actually rely on randomized control trials (RTCs)
+    \item Instead they use observational methods to estimate ad effects 
+    \item Findings suggest that commonly used observational methods often fail to accurately measure the true effect of advertising
+\end{itemize}
+\textbf{The research question states:} ``Can observational methods (the standard industry approach to measuring ad effectiveness) reliably replicate the causal effects obtained from randomized controll trials (RTCs)? This is critical because while RTCs are the gold standard for causal inference, most advertisers rely on observational methods due to the technical difficulty and perceived expense of experimentation''.
+\section{Why does this matter?}
+
+Digital advertising spending surpassed TV advertising in 2017, yet measuring causal ad effects remains challenging for two reasons: 
+\begin{enumerate}
+    \item Signal-to-noise problem: Individual outcomes are volatile relative to ad spending, so advertising explains only a small fraction of outcome variation. 
+    \item Endogeneity: Even small amounts of selection bias (e.g., likely buyers being more likely to see ads) can severely bias causal estimates
+\end{enumerate}
+Three mechanisms genererate this endogenous variation on Facebook: 
+\begin{itemize}
+    \item User-induced endogeneity (``activity bias''): Users who visit Facebook more are both more likely to see ads AND more likely to convert online 
+    \item Targeting-induced endogeneity: Facebook's ML optimize ad delivery toward users most likely to convert, systematically biasing who sees ads 
+    \item Competition-induced endogeneity: Auction dynamixs mean advertisers win impressions for users they value highly (often those with higher conversion probability)
+\end{itemize}
+\newpage
+\section{Methodology}
+The authors leveraged Facebook's experimental infrastructure, which randomly assigns users to test or control groups. Control users never see the focal campaign's ads (they see whatever ad would have won the auction without the focal advertiser). Test users may or may not be exposed depending on various factors. 
+
+\textbf{Key advantages of Facebook data}:
+\begin{itemize}
+    \item User-level tracking across devices (not cookie-based)
+    \item Large sample sizes (2-140 million users per study)
+    \item Rich covariates: demographics, Facebook variables, census data, user activity variables, and match scores 
+\end{itemize}
+\textbf{Observational methods tested}
+\begin{itemize}
+    \item Simple exposed vs. unexposed comparison 
+    \item Exact matching on age/gender 
+    \item Propensity score stratification 
+    \item Propensity score matching
+    \item Regression adjustment 
+    \item Inverse probability weighted regression adjustment
+    \item Stratified regression
+\end{itemize}
+Each method was tested with increasingly rich covariate sets to see if ``better data'' could close the gap with RTC results. 
+
+\section{Key findings}
+\begin{enumerate}
+    \item \textbf{Observational methods frequently fail to replicate the RTC results}
+    \begin{itemize}
+        \item In half of the studies, the observational estimates were off by a factor of 3 or more 
+        \item Bias direction is unpredictable: methods mostly overestimate lift, but sometimes significantly underestimate it 
+        \item Example extremes: 
+        \begin{itemize}
+            \item Study 9: RTC lift = 2.4\%, best observational estimate = 1,306\% (544x overestimate)
+            \item Study 15: RTC lift = 2.4\%, observational estimates ranged from -14\% to +26\%
+        \end{itemize}
+    \end{itemize}
+    \item \textbf{More data helps, but not enough}
+    \begin{itemize}
+        \item Adding richer covariates (Facebook variables, census data, activity measures) generally reduced bias 
+        \item However, even the riches covariate sets failed to recover RTC estimates in most cases 
+        \item No single observational method consistently dominated across studies 
+    \end{itemize}
+    \item \textbf{Outcome type matters}
+    \begin{itemize}
+        \item Observational methods performed better for registration and page-view outcomes than for purchase/checkout outcomes 
+        \item Reason: unexposed users are unlikely to find registration pages on their own, making the exposed-unexposed comparison more similar to the RTC comparison
+    \end{itemize}
+    \newpage 
+    \item \textbf{Sensitivity analysis: How much better data would be needed?}
+    \begin{itemize}
+        \item The authors simulated hypothetical unobserved variables to determine what additional data would be needed to eliminate bias 
+        \item For some studies, the required additional covariates would eed explanatory power \textbf{exceeding their entire combined observable dataset}
+        \item This suggests that even industry insiders with access to all of Facebook's data might struggle to eliminate bias 
+    \end{itemize}
+\end{enumerate}
+\section{Conclusion and Implications}
+\textbf{Main takeaway}: Commonly used observational approaches based on data typically available in the advertising industry often fail to accurately measure the true causal effect of advertising --- even with unusually rich individial-level data and sophisticated modern causal inference methods. 
+
+\textbf{Three contributions:}
+\begin{enumerate}
+    \item \textbf{Empirical evidence against industry conventional wisdom:} The belief that ``good observational methods with good data are good enough'' is not supported. These methods yield biased estimates in the majority of cases studied. 
+    \item \textbf{Characterizing data requirements:} For many campaigns, the additional data needed to make observational methods work would need to be stronger than all existing observable vairables combined --- likely unattainable even for platform insiders. 
+    \item \textbf{Updating the LaLonde (1986) debate:} While recent methodological advances have enabled observational methods to replicate experimental results in job-training contexts, the strong selection effects from high-dimensional targeting algorithms in digital advertising present a more severe challenge.
+\end{enumerate}
+\textbf{Practical implications:} The digital advertising industry needs to invest in experimentation infrastructure rather than relying on observational measurement. As ML targeting becomes more sophisticated across marketing applications, the data requirements for successful observational analysis will only grow, making experimentation increasingly essential.
+\end{document}

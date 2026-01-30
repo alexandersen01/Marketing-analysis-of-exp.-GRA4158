@@ -1,0 +1,85 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Where A/B Testing Goes Wrong: How Divergent Delivery Affects\\What Online Experiments Cannot (and Can) Tell You About\\How Customers Respond to Advertising}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Paper Notes}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Overview}
+Braun and Schwartz deliver a critical examination of A/B testing on online advertising platforms (Meta, Google, etc.), revealing a fundamental flaw that many marketers and researchers have overlooked. The central thesis is that A/B tests conducted through platform-provided tools do not generate the randomized, controlled experiments that experimenters assume they are running. Instead, these tests suffer from ``\textbf{divergent delivery}'' --- a phenomenom where the platform's targeting algorithm serves different ads to systematically different mixes of users, even during the supposedly randomized experiment. 
+
+The paper's key insight is deceptively simple but profound: when platforms optimize ad delivery based on ``relevance'' (the predicted match between user characteristics and ad content), they inevitably create imbalanced treatment groups. Users who see ad A are fundamentally different from users who see ad B. This means the observed A/B difference confounds two effects: (1) the actual impact of ad content, and (2) the algorithmic selection of different user types for each ad. 
+
+\section{Methodological Framework}
+The authors extend the classic potential outcomes model of causal inference to accommodate the dual-layered structure of online ad experiments. They distinguish between:
+\begin{itemize}
+    \item \textbf{Eligibility}: Random assignment of users to be \textit{eligible} to see either ad A or ad B
+    \item \textbf{Targeting / Exposure}: The algorithm's subsequent decision about which eligible users actually see their assigned ad 
+\end{itemize}
+The critical problem is that while eligibility is randomized, targeting is not. The algorithm applies relevance-based targeting that craetes systematic differences in user composition across treatment groups. 
+
+The paper formalizes divergent delivery through a targeting odds ratio $(\rho\tau) $, which captures the two-way interaction between user type and ad content in the targeting process. When $\rho\tau\neq 1 $, the proportions of user types diverge across ads --- Poets (creative types) may be over-represented among users seeing the ``Words'' ad, while Quants (analytical types) may dominate the ``Numbers'' ad group. 
+
+\section{Empirical Evidence}
+The authors provide compelling first-hand evidence from a field experiment conducted with the City of Detroit in 2018, testing recruitment ads for city employment. Using Meta's A/B testing tool with 14 different ad treatments, they demonstrate clear patterns of divergent delivery along observable dimensions: 
+\begin{itemize}
+    \item Ads featuring domestic violence officers (with female imagery) were targeted more to women (52.2\% female)
+    \item Patrol officer ads (male imagery) were targeted more to men (47.4\$ female)
+    \item Emotional appeals were more likely delivered to women than rational appeals  
+\end{itemize}
+These patterns reveal that even during a supposedly randomized experiment, the algorithm was steering different ads to different demographic groups --- and these are only the \textit{observable} imbalances. The unobservable targeting criteria (proprietary to the platform) likely create far more severe imbalances
+\newpage 
+\section{Theoretical Implications: Sign Reversals and Simpson's Paradox}
+Perhaps the most alarming finding concerns the potential for \textbf{sign reversals} --- situations where the estimated direction of an A/B effect is opposite to the true effect. Through analytical derivation and simulation, the authors demonstrate that: 
+\begin{enumerate}
+    \item \textbf{Crossover interactions: } When user types respond differently to ads (e.g., Poets prefer Words, Quants prefer Numbers), divergent delivery that matches users to their preferred ads can make a weaker ad appear stronger in aggregate.
+    \item \textbf{Simpson's Paradox: } Even without crossover interactions --- when one ad is genuinely superior for \textit{all} user types --- divergent delivery can produce reversed estimates. This occurs when the algorithm aggressively targets better-responding users with the weaker ad, inflating its apparent lift. 
+\end{enumerate}
+The simulation results show that sign reversals become more likely when: 
+\begin{itemize}
+    \item True effect differences between ads are small 
+    \item User heterogeneity in baseline response rates is large 
+    \item The targeting algorithm is aggressive in matching users to ``relevant'' content 
+\end{itemize}
+\section{Practical Implications for Different Stakeholders}
+The paper provides nuanced guidance based on experimenter objectives: 
+
+\textbf{For performance-focused marketers} (predicting which ad will perform better on the same platform): Current A/B tools are acceptable. The bundled value proposition of ad content + algorithmic targeting is exactly what will persist during rollout. 
+
+\textbf{For strategic marketers} (informing brand positioning, creative development across channels): A/B test results should ont be trusted for causal inference about ad content effects. The confounding makes it impossible to know whether observed differences reflect creative effectiveness or algorithmic selection. 
+
+\textbf{For academic researchers} (testing psychological hypotheses through field experiments): The lack of randomization undermines the evidently value of these experiments. Results cannot support causal claims about how ad content affects behavior, since treatment groups at compositionally different. 
+
+\section{Why Platforms Won't Fix This}
+The authors explain that divergent delivery is not a bug, but a feature --- central to the platform's value proposition. Disabling it would: 
+\begin{itemize}
+    \item Reduce conversions during experiments (they estimate potentially significant percentage losses)
+    \item Reveal proprietary information about targeting algorithms 
+    \item Require massive engineering effort (one insider suggested 2-3 years of work)
+\end{itemize}
+The business model creates structural misalignment: platforms profit from bundled targeting, not from helping advertisers understand creative effects in isolation. 
+\newpage 
+\section{Conclusion}
+Brain and Schwartz have produced an essential contribution to both marketing practice and methodology. Their central message --- that experimenters may not be learning what they think they are learning from ad A/B tests --- deserves wide dissemination. The paper successfully bridges technical rigor with practical relevance, offering both a comprehensive theoretical framework and actionable guidance.
+\end{document}

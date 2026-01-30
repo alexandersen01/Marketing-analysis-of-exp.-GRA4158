@@ -1,0 +1,137 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Foundations of causal inference}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Lecture 3}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Agenda}
+\begin{itemize}
+    \item Potential outcomes framework
+    \item Treatment effects 
+    \begin{itemize}
+        \item The average treatment effect (ATE)
+        \item The average treatment effect on the treated (ATET)
+        \item The concept of selection effects 
+        \item A little bit on estimation
+    \end{itemize}
+    \item Independence vs. conditional independence 
+    \item Regression analysis for estimating treatment effects 
+\end{itemize}
+\section{Causal effect of an advertisement on purchase probability}
+\begin{itemize}
+    \item in online marketing, we often know who saw the ad and what action they performed
+    \item we know who did not see an ad and what actions they performed 
+    \item we can compare both groups:
+\end{itemize}
+\subsection{Rubin's potential outcomes framework}
+\begin{itemize}
+    \item for a set of i.i.d. subjects $i = 1, …, n $, we observe a tuple $(X_i, Y_i, T_i):$
+    \begin{itemize}
+        \item A vector of covariates $X_i \in \mathbb{R} $
+        \item A response (outcome, dependent variable) $Y_i\in \mathbb{R} $
+        \item A treatment assignment $T_i\in \{0, 1\}$
+        \begin{itemize}
+            \item $T_i = 1 $ if they receive the treatment, 0 otherwise
+        \end{itemize}
+    \end{itemize}
+    \item The potential outcomes framework postulates the existense of quantities $Y_i(1)$ and $Y_i(0) $ for each subject $ i $
+    \begin{itemize}
+        \item $Y_i(1) $ Potential outcome for individual $i $ with treatment $(T_i = 1) $
+        \item $Y_i(0) $ Potential outcome for individual $i $ without treatment $(T_i = 0) $
+    \end{itemize}
+    \item The causal effect of the treatment is defined as the difference between these two potential outcomes: $\tau_i = Y_i(1) - Y_i(0)$
+    \item Example: John has a prob of buying the product after seeing an ad of 25\% and 18\% without seeing it
+    \begin{itemize}
+        \item $\tau = 25 - 18 = 7 $
+    \end{itemize}
+\end{itemize}
+\newpage 
+\subsection{Potential outcomes framework: the problem}
+\begin{itemize}
+    \item For each individual $ i $ at any given time, we can only observe $Y_i $, that is either treated or untreated, but never both simultaneously
+    \item For example, John cannot see the ad and not see the ad at the same time, so we don't know if that truly works
+    \item Therefore we need a suitable framework to estimate the counterfactual. I.e., if John sees the ad, we need to be able to estimate what would happen if he didn't
+\end{itemize}
+\textbf{How to determine the counterfactual?}
+\begin{itemize}
+    \item Estimating causal effects usually requires one or some combination of the following: 
+    \item Randomization / independence
+    \item Close subsitutes for the potential outcomes 
+    \item Statistical adjustment
+\end{itemize}
+\subsection{Typical important assumptions}
+\begin{itemize}
+    \item an individual receives only one version of the treatment, either $T_i = 0 $ or 1
+    \item an individual's treatment assignment does not interfere with other individuals' outcomes 
+    \item This pair of conditions is AKA SUTVA (stable unit treatment value assumption)
+    \item treatment assignment affects outcomes only through the active treatment 
+\end{itemize}
+\section{Treatment effects}
+\subsection{Average treatment effect (ATE)}
+\begin{itemize}
+    \item A typical goal is to estimate the average treatment effect (ATE)
+    \item i.e., the average of all individual causal effects in the population
+    \begin{gather*}
+        \tau_{\text{ATE}} = \mathbb{E}[\tau_i] = \mathbb{E}[Y_i(1) - Y_i(0)]
+    \end{gather*}
+    \item if some requirements are fulfilled, a comparison of average outcomes in treatment and untreated groups, the so-called difference-in-means, is a consistent estimator of the ATE: 
+    \begin{gather*}
+        \widehat{\text{ATE}} \approxeq \frac{1}{N_T}\sum_{i\in \text{treated}}Y_i(1) - \frac{1}{N_C}\sum_{j\in \text{control}}Y_j(0)\\
+        \mathbb{E}[Y_i | T_i = 1] - \mathbb{E}[Y_i | T_i = 0]
+    \end{gather*}
+\end{itemize}
+\subsection{Independence (through random assignment)}
+\begin{itemize}
+    \item if treatment assignments are independent of the individuals' potential outcomes
+    \begin{gather*}
+        \{Y_i(1), Y_i(0)\}\bot T_i
+    \end{gather*}
+    \item under this requirement you can assume that $\mathbb{E}[Y_i(1)] = \mathbb{E}[Y_i(1) | W_i = 1]$
+    \item cool but what is W hahahaha
+\end{itemize}
+\newpage 
+\section{Confounding: selection bias}
+\begin{itemize}
+    \item when the selection into treatment and control is not independent of the potential outcomes 
+    \item okay and then what 
+\end{itemize}
+\subsection{selection on returns vs. selection bias}
+\begin{itemize}
+    \item selection on returns (i.e., ATET $\neq $ ATE) means that the group that was treated respons differently to the treatment than the general population 
+    \begin{itemize}
+        \item e.g., seeing an ad might be less effective for those that are not interested in the product 
+        \item we will also call this treatment effect heterogeneity
+    \end{itemize}
+    \item Selection on returns is not an issue of bias 
+    \begin{itemize}
+        \item the ATET is the correct average treatment effect among the population that gets treated 
+        \item e.g., it is the causal effect of seeing an ad for those that are interested in the product. 
+    \end{itemize}
+    \item however, the ATET may not be the ATE of requiring everyone to see the ad 
+    \begin{itemize}
+        \item however, the ATE is often not necessary to know unless we want the effect of applying the treatment of the entire population
+        \item often, it is sufficient to know the effect on those for which it will commonly be applied 
+    \end{itemize}
+\end{itemize}
+
+\end{document}
