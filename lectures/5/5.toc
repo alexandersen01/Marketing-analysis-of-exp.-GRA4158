@@ -1,0 +1,32 @@
+\contentsline {section}{\numberline {1}Online ad experiments in marketing and their problems}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Relation between ITT and ATET/ATE}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}When is LATE = ATET?}{2}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Single-ad study vs. multi-ad studies and causal inference / divergent delivery}{3}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}The problem with divergent delivery}{3}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Two main types of online ad experiments --- divergent delivery}{3}{subsubsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.4}Interpretation of A/B test (multiple-ad study) with targeting}{4}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}When is divergent validity a problem for multi-ad studies?}{4}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}Single-ad study with holdout/control}{4}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}Identification of outcomes}{4}{subsection.1.7}%
+\contentsline {subsection}{\numberline {1.8}The ideal situation --- ATET}{5}{subsection.1.8}%
+\contentsline {subsection}{\numberline {1.9}Conclusions}{5}{subsection.1.9}%
+\contentsline {subsection}{\numberline {1.10}A bit on binary outcomes and causal inference}{6}{subsection.1.10}%
+\contentsline {subsection}{\numberline {1.11}Logistic regression}{7}{subsection.1.11}%
+\contentsline {section}{\numberline {2}Experimental Design}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Why it matters}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Within vs. between subject experiments}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Manipulating the independent variable}{8}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Examples}{8}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Compound treatment --- example}{8}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Similar: Placebo effects}{9}{subsubsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.5}Measuring the dependent variable(s)}{9}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Validity of experiments}{9}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Internal validity}{10}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Some common threats to internal validity of experiments}{10}{subsubsection.2.7.1}%
+\contentsline {subsubsection}{\numberline {2.7.2}Threats to internal validity --- statistical conclusion validity}{10}{subsubsection.2.7.2}%
+\contentsline {subsubsection}{\numberline {2.7.3}Threats to internal validity --- The experimental protocol}{11}{subsubsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.8}Stratified random assignment}{11}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.9}Interference problems in marketing --- examples}{11}{subsection.2.9}%
+\contentsline {subsection}{\numberline {2.10}Threats to internal validity --- the experimental protocol}{12}{subsection.2.10}%
+\contentsline {subsection}{\numberline {2.11}Threats to internal validity --- awareness about the experiment}{12}{subsection.2.11}%
+\contentsline {subsection}{\numberline {2.12}Threats to internal validity --- the measurement of the outcome}{12}{subsection.2.12}%

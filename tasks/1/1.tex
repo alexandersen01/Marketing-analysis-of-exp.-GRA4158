@@ -1,0 +1,161 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Mini case study --- Portfolio task 1}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments}
+\maketitle
+
+You are a data analytics intern at a company that conducted an advertising experiment to
+measure the effectiveness of a digital advertisement campaign on a website. The experiment
+was implemented by storing a cookie on the website visitor's device before serving the first ad,
+that randomly determined whether the visitor belonged to the treatment or control group. The
+treatment group was eligible to see ads, while the control group did not see any ads. The
+company also stored additional information about ad exposure (impressions). For the treatment
+group, the company stored the number of times the ad was loaded when the user visited the
+website during the campaign period. For the control group, they stored the number of times the
+user would have been exposed to the ad if they were not in the control group, even though no
+ad was displayed to them (similar to Ghost ads and ensuring compliance in the control group).
+
+The company tracked whether users from the experiment made a purchase in their online store
+(using a tracking cookie). The average contribution of a purchase is estimated to be 200 NOK.
+The cost of advertising on the website was 100 NOK for every 1000 ad impressions.
+
+Your job is now to carefully analyze the data and provide answers to the following questions for
+the marketing manager:
+\begin{enumerate}
+    \item Is there evidence for non-compliance in the data? If yes, what type of non-compliance
+    and how does it affect your ability to estimate different types of treatment effects?
+    \item Estimate the different types of treatment effects (e.g., ATE, ATET, LATE, ITT; depending
+    on your previous conclusions) of showing the ad on the conversion rate and
+    communicate them appropriately for a managerial audience.
+    \item Analyze the effect of impression on the treatment effect (i.e., estimate CATEs). How
+    does this supplement or change your previous findings?
+    \item Is showing ads profitable for the company?
+    \begin{itemize}
+        \item Calculate the net contribution of an ad exposure (taking into account the ad
+        effect, average exposure in the control group, and ad costs per exposure)
+        \item Perform some sensitivity assessments (at which average contribution, ad costs,
+        or ad effect will showing ads be unprofitable?)
+    \end{itemize}
+    \item Critically discuss the methods you use to estimate the treatment effects and their
+    inference statistics. What are limitations and other options?
+    \item Discuss potential violations of assumptions for causal inference (e.g., SUTVA) in this
+    context and assess their potential impact on the size of the effects.
+\end{enumerate}
+\newpage 
+\textbf{Format}
+\begin{itemize}
+    \item Report the analyses including the code and some discussions about what you did and
+    your key findings (e.g., an R-Studio based qmd report).
+    \item Write a short conclusion at the end summarizing the key findings of your analysis and
+    some potential suggestions for the marketing manager.
+\end{itemize}
+
+\textbf{Assessment dimensions}
+\begin{enumerate}
+    \item Use of Terminology and Concepts:
+    \begin{itemize}
+        \item Uses appropriate terminology and concepts from the course or class literature.
+        \item Uses appropriate methods from the course or class literature.
+    \end{itemize}
+    \item Data analysis: 
+    \begin{itemize}
+        \item Demonstrates understanding of the data and apply appropriate analysis techniques.
+    \end{itemize}
+    \item Communication and Organization: 
+    \begin{itemize}
+        \item Provides clear answers to the questions given in the task.
+        \item Presents code and analysis in a clear and organized manner.
+        \item Presents well-developed discussions about analysis findings.
+    \end{itemize}
+    \item Reflection and Suggestions for the Marketing Manager:
+    \begin{itemize}
+        \item Shows awareness for the challenges in the data analysis and provides careful and
+        practical recommendations.
+        \item Overall, demonstrates critical thinking, synthesis of information, and the ability to draw
+        meaningful conclusions.
+    \end{itemize}
+\end{enumerate}
+
+\section{Answer:}
+\begin{enumerate}
+    \item In order to check for non-compliance, we need to see if the treatment group (test = 1) should see ads (impressions $> 0$), and the control group should NOT see ads (impressions = 0 in practice )
+
+    Since the control group has ``ghost ads'' (hypothetical impressions), non-compliance would be if the control group actually SAW ads. 
+
+    The data shows one-sided non-compliance. In the treatment group, 21.45\% were assigned to receive ads but had 0 impressions (the never-takers). The control group shows perfect compliance. The ghost ads system ensures that the control group never actually saw ads. The 21.59\% with 0 ghost impressions simply indicates users who would not have been exposed regardless of assignment. This is \underline{not} two-sided non-compliance because no one in the control group actually received treatment. 
+
+    We are able to estimate ITT because we have a simple comparison of means by assignment (test = 0 vs test = 1). We cannot observe counterfactual for never-takers who may systematically differ, so we cannot estimate ATE. A naive ATET estimate (comparing those with impressions $> 0 $ in treatment vs. controls) would be biased because never-takers may systematically differ from compliers. Without additional assumptions, ATET is not cleanly identified. LATE is also estimable since using assignment as an instrument for actual exposure estimates effect for compliers. Since we have one-sided non-compliance with perfect compliance in control, LATE = ATET for compliers, which is actually quite informative for managerial decisions. 
+    \newpage 
+    \item \textbf{Treatment effect estimates}: The difference in conversion rates between assignment groups is 0.465 percentage points ($p = 0.001$, 95\% CI : [0.18pp, 0.74pp]). This represents the effect of being \textit{assigned} to see ads, regardless of actual exposure. The control group conversion rate was 2.4\% and the treatment group was 2.87\%. 
+
+    \textbf{LATE}: Using random assignment as an instrument for actual ad exposure, we estimate the effect of \textit{actually seeing} ads for compliers is 0.59 percentage points ($p = 0.001$, CI: [0.23pp, 0.95pp])
+
+    \textbf{Interpretation}: For every 1,000 users who see the ad, we expect approximately 6 additional conversions compared to not showing ads. The LATE is larger than the ITT because the ITT is diluted by never-takers (users assigned to treatment who never visited the site). 
+
+    Note: We do not report an ATET estimate because it would suffer from selection bias, as mentioned in task 1.
+    \item The interaction model reveals significant heterogeneity in treatment effects ($p = 0.004 $). The effect of ads increases with the number of impressions: 
+    \begin{itemize}
+        \item 0-5 impressions: near-zero treatment effect (ITT $\approx 0 $)
+        \item 6-10 impressions: ITT = 2.62 percentage points, substantially higher than the overall average 
+        \item Per-impression effect: each additional impresion adds approximately 0.35 percentage points to the treatment effect 
+    \end{itemize}
+    This suggests a ``threshold effect'', ads need repeated exposure before influencing purchase behavior. The practical implication is that low-frequency exposure may not be cost-effective; the company should prioritize reaching users with 6+ impressions to maximize ROI. 
+
+    These findings supplement our earlier estimates by showing that the overall ITT (0.46pp) and LATE (0.59pp) are \textit{averages across heterogeneous effects}. The true effect for high-exposure users is considerably larger. 
+    % \newpage 
+    \item \textbf{Is showing ads profitable?}
+
+    Yes, the advertising campaign is profitable. Using the ITT estimate, each user assigned to treatment generates a revenue lift of 0.93 NOK ($0.465\%\times 200 \text{NOK} $) at a cost of 0.32 NOK (3.2 impressions $\times 0.10 $ NOK), yielding a \textbf{net contribution of 0.61 NOK per user} and an \textbf{ROI of approximately 190\%}
+
+    At the campaign level, the treatment group of $\sim $25k users generated approximately 117 additional conversions, with a total revenue lift of 23,317 NOK against ad costs of 8,025 NOK, for a \textbf{net contribution of 15,292 NOK.}
+
+    Sensitivity analysis shows substantial margins of safety; the campaign remains profitable as long as contribution per purchase exeeds 69 NOK (current: 200 NOK). The campaign can tolerate CPM up to 291 NOK before it becomes unprofitable (current: 100 NOK). The treatment effect could fall to $0.16\% $ before breaking even (current: $0.46\% $). All parameters have approximately 66\% margin of safety, indicating thet profitability conclusion is robust to measurement uncertainty. 
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{image.png}
+    \end{figure}
+    \newpage 
+    \item \textbf{Discussion of methods:}
+    \begin{enumerate}
+        \item ITT: We estimated the ITT effect using OLS regression of purchase outcomes on treatment assignment, using heteroskedasticity-consistent standard errors. This approach relies on random assignment, which is satisfied by the experimental design. The primary limitation of the ITT estimate is that it represents a ``diluted'' effect because it includes never-takers who were assigned to treatment but never actually saw ads. Additionally, the linear probability model used for the binary outcome can \textit{in theory} produce predicted probabilities outside the $[0, 1] $ range (although this is rarely problematic for estimating average effects). Alternative approaches include logistic regression (as mentioned in lecture 5), which provide odds-ratios rather than percentage point changes. 
+        \item LATE: To account for non-compliance, we estimated the LATE using two-stage least squares with random assignment as an instrument for actual ad exposure. This approach requires four key assumptions: relevance (assignment must affect actual exposure), the exclusion restriction (assignment affects purchase only through ad exposure), monotonicity (no defiers who would only see ads when assigned to control), and independence (random assignment). Our first stage is strong with a compliance difference of 78.5\%, satisfying the relevance condition. 
+
+        The main limitation to LATE is that it identifies the causal effect only for compliers (those who see ads when assigned to treatment and don't see ads when assigned to control). This effect may not generalize to never-takers, whose response to ads whe cannot observe. The exclusion restriction is fundamentally untestable and could be violated if merely being part of an experiment affects behavior independently of ad exposure. Alternative approaches include bounds analysis, which relaxes assumptions at the cost of wider intervals, or principal stratification methods. 
+        \item CATE: We examined effect heterogeneity by impression level using an interaction model that included treatment, impressions and their product. This approach test whether the treatment effect varies systematically with exposure intensity. The key assumption is that this relationship is linear, which may miss more complex non-linear patterns such as threshold effects or diminishing returns. The ghost ads design is particularly valuable here, as it allows us to compare treatment and control groups at the same hypothetical exposure levels. 
+        
+        Limitations include the parametric nature of the interaction specification and concerns about multiple comparisons when testing many sub-groups. Small sample sizes at extreme impression levels (the 11+ bin in the code contains only 101 observations) also reduce precision and reliability for those estimates. More flexible alternatives include causal forests or other ML-based methods. 
+
+        Our inference relies on asymptotic approximations with robust standard errors to account for heteroskedasticity, which is particularly important for binary outcomes where variance inherently depends on the mean. With 50k observations, large-sample approximations are generally reliable. However, our standard errors do not account for potential clustering --- if users share devices or households, observations may not be independent, and cluster-robust standard errors would be more appropriate. 
+        \newpage 
+        \item SUTVA has two components: no interference between units and no hidden versions of treatment. The first component requires that one user's treatment status does not affect another user's outcome. This could be violated through word-of-mouth (a user who sees the ad might tell a user in the control group about the ad, influencing their purchase decision), shared devices / households, or social network effects. These inference effects would typically cause us to \textit{underestimate} the true ad effect, because some of the treatment ``spills over'' to control. The second component assumes that there is only one version of treatment. In this experiment, users could receive different numbers of impressions, which are effectively different ``doses'' of treatment. Out CATE analysis showed that the treatment effect varies substantially with impression count; users with 6+ impressions showed much larger effects than those with 1-5 impressions. The heterogeneity in treatment intensity means our average estimates (ITT, LATE) mask important variation. The single ``treatment effect'' is actually a weighted average across very different exposure levels. 
+
+        \item The exclusion restriction (for IV/LATE) requires that random assignment affects purchases \textit{only through} actual ad exposure. This could be violated through the Hawthorne effect; if users somehow became aware that they were in an experiment and let it affect their behavior. It could also be affected through the tracking cookie placed for randomization; by itself, it might affect user experience or trigger other platform behaviors that influence purchase. In this experiment, the ghost ads design helps satisfy the exclusion restriction by ensuring the control group has comparable tracking to the treatment group. This is a strength of the experimental design. If the exclusion restriction were to be violated, it would bias the LATE estimate. The direction depends on how the violation affects behavior. 
+
+        \item Monotonicity requires that no user would see ads only when assigned to control. In this design, monotonicity is satisfied by construction; the control group cannot see ads regardless of assignment, and the ghost ads system ensures one-sided non-compliance.
+
+        \item Random assignment appears satisfied by the cookie-based randomization. We could verify this by checking for balance on observable pre-treatment characteristics if such data were available. Without additional covariates in the dataset, we rely on the experimental design description. 
+
+        The most concerning potential violation is interference through word-of-mouth or shared households, which cause us to underestimate the true ad effect. However, in a large-scale digital advertising context with 50,000 users, spillover effects are likely diluted across many social networks, suggesting the bias is probably modest. The heterogeneity in treatment intensity (varying impression) is documented in the CATE analysis rather than being a hidden bias 
+    \end{enumerate}
+\end{enumerate}
+
+\end{document}
