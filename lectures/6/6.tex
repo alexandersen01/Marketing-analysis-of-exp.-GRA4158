@@ -1,0 +1,289 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{Experimental Design}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Lecture 6}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Manipulating the independent variable}
+\begin{itemize}
+    \item How do we vary the treatment? I.e., the independent variable 
+    \begin{itemize}
+        \item Selecting the right treatment and control condition(s)
+    \end{itemize}
+    \item What is the counterfactual?
+    \begin{itemize}
+        \item Is it the absence of something?
+        \item Or is it an explicit alternative?
+        \item What is the focal concept that we want to test / research?
+        \item How can we correctly implement the alternatives without inference?
+    \end{itemize}
+    \item Balance between realism and a clear definition of the desired manipulation
+    \begin{itemize}
+        \item Internal vs external validity
+    \end{itemize}
+    \item Variation of the independent variable must meet two requirements: 
+    \begin{itemize}
+        \item Effectiveness: the treatment must be effective in the sense that the focal concept is indeed varied 
+        \item Control: the treatment must gurantee that any aspects other than the focal independent variable are not unintentionally varied 
+    \end{itemize}
+\end{itemize}
+\section{Examples}
+\subsection{Scarcity cues in E-commerce}
+Causal question: does displaying scarcity influence purchase intentions?
+\begin{itemize}
+    \item IV: Scarcity
+    \begin{itemize}
+        \item Treatment: deisplaying in-stock information
+        \item counterfactual/control: ??
+    \end{itemize}
+    \item Effectiveness: is displaying in-stock information actually varying scarcity perception?
+    \begin{itemize}
+        \item Is the displayed number large/small enough to affect scarcity in a meaningful way?
+        \item Manupulation check: measure scarcity?
+    \end{itemize}
+    \item control: is displaying in-stock information varying any other variables than scarcity? like popularity etc. 
+\end{itemize}
+\subsection{Compound treatment --- example}
+\begin{itemize}
+    \item you want to investigate the causal effect of a price discount on purchase decisions 
+    \item you run an A/B test 
+    \begin{itemize}
+        \item You randomly assign customers to two groups 
+        \item customers in the treatment group get an email with the price discount 
+        \item customers in the control group do not get an email 
+    \end{itemize}
+    \item \textbf{is the difference between groups the effect of the price discount?}
+\end{itemize}
+\newpage
+\subsection{Similar: placebo effects}
+\begin{itemize}
+    \item You want to test the effect of receiving a medicine for pain relief 
+    \item you run an A/B test 
+    \begin{itemize}
+        \item you randomly assign customers to two groups 
+        \item people in the treatment get the pill
+        \item people in the control group do not get the pill
+    \end{itemize}
+    \item \textbf{is the difference between groups the effect of the medicine?}
+    \item no, because observed differences between the treatment and control group may be due to receiving the pull and not because the medicine actually works 
+\end{itemize}
+\section{Measuring the dependent variable(s)}
+\begin{itemize}
+    \item how can we find a way to measure the dependent variable(s)? the intended outcome variable(s)
+    \item what is the variable that we are interested in?
+    \begin{itemize}
+        \item are we able to measure it direcly? Do we need proxy variables to measure it indirectly?
+        \item are we able to measure it in all treatment (and control) conditions in the same way? 
+        \item is measurement possible in the absence of treatment?
+    \end{itemize}
+    \item does the type of measure introduce threats to validity? demand effects, social desiribility etc. 
+    \item do we need to capture additional variables to understand the process and mechanism of the treatment better (i.e., mediators)?
+\end{itemize}
+\section{validity of experiments}
+\begin{minipage}[t][0.28\textheight][t]{0.48\textwidth}
+\textbf{Internal validity}
+\begin{itemize}
+    \item refers to whether the treatment actually caused the observed effects on the dependent variable(s)
+    \item can we accurately setimate the treatment effect within the given context and for our particular example?
+    \begin{itemize}
+        \item fails when there are differences between treatment groups (other than what we can control) that affect the outcome
+        \item directly associated with the design of the experiment
+    \end{itemize}
+    \vfill
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}[t][0.28\textheight][t]{0.48\textwidth}
+\textbf{External validity}
+\begin{itemize}
+    \item refers to whether the cause-and-effect relationships found in the experiment can be generalized 
+    \item can we extrapolate our estimates to other settings/populations/time?
+    \begin{itemize}
+        \item fails when the treatment effect is different
+        \begin{itemize}
+            \item outside of the evalutation environment 
+            \item or for other groups of people
+        \end{itemize}
+        \item how realistic / representative is the experiment for real environments in which the treatment should be applied?
+    \end{itemize}
+    \vfill
+\end{itemize}
+\end{minipage}
+\vspace{1em}
+\newpage 
+\subsection{internal validity}
+\subsubsection{Some common threats to internal validity}
+\begin{itemize}
+    \item The experimental protocol
+    \begin{itemize}
+        \item potential outcomes not independent of assignment: presence of selection effects 
+        \item non-compliance, attrition 
+        \item interference / violation of SUTVA
+        \item time effects 
+    \end{itemize}
+    \item awareness about the experiment (hawthorne effect)
+    \item the measurement of the outcome 
+    \begin{itemize}
+        \item differential measures 
+        \item ambiguous temporal precedence 
+    \end{itemize}
+    \item statistical conclusion validity
+\end{itemize}
+\subsubsection{Threats to internal validity --- the experimental protocol}
+\begin{itemize}
+    \item potential outcomes not independent / selection effects 
+    \begin{itemize}
+        \item between-subjects design 
+        \begin{itemize}
+            \item assignment not (fully) random 
+            \begin{itemize}
+                \item we can test on observed pre-treatment variables for equivalence of groups 
+                \item we may need to rewuire conditional independence (i.e., after controlling for observables we achieve indepenence)
+            \end{itemize}
+            \item non-compliance
+        \end{itemize}
+        \item within-subject design 
+        \begin{itemize}
+            \item time effects: order and carryover effects, changes in the environment etc. 
+        \end{itemize}
+    \end{itemize}
+    \item violation of SUTVA (stable unit value assumption)
+    \begin{itemize}
+        \item interference: potential outcomes are not independent of the treatment status of other individuals 
+    \end{itemize}
+    \item \textbf{differntial attrition}
+    \begin{itemize}
+        \item attrition: participants leave the experiment before all measures are completed 
+        \item differntial attrition: drop out in group is larger or smaller than in the other group due to reasons of the experiment / drop out is not independent of the potential outcomes 
+    \end{itemize}
+    \item \textbf{time effects}
+    \begin{itemize}
+        \item when treatments are administered at two different times, outside events, learning or other changes in the environment can influence the treatment effect
+    \end{itemize}
+\end{itemize}
+\newpage 
+\subsubsection{Stratified random assignment}
+\begin{itemize}
+    \item does not randomize on the population level, but within more homogenous subgroups
+    \begin{itemize}
+        \item assigns loyalty card members with .5 probability to treatment and control
+        \item assigns non-loyalty card members with .5 probability to treatment and control
+    \end{itemize}
+    \item ensures better balance for each of the characteristics on which we build subgroups / strata 
+    \begin{itemize}
+        \item characteristics should be potentially important confounders where balancing is important
+    \end{itemize}
+    \item important if a key characteristic has low prevalence in the population and small sample
+    \begin{itemize}
+        \item example: we have a sample of 100 customers of an airline of which 2 are heavy frequent flyers. We split the population into two groups. therefore it is unlikely that the two flyers are in different groups 
+    \end{itemize}
+    \item esp. important if we use this characteristic to analyze conditional treatment effects 
+\end{itemize}
+\subsubsection{Threats to internal validity --- awareness about the experiment}
+\textbf{Hawthorne effect}
+\begin{itemize}
+    \item if individuals know that they are part of an experiment, they might behave differently
+\end{itemize}
+\textbf{Demand effects}
+\begin{itemize}
+    \item participants guess the purpose or goald of the experiment and try to conform with it 
+    \item they change their behavior in favor or against the hypothesis
+\end{itemize}
+
+Ideally people should be unaware of the experiment or the goals of the experiment, but consider ethical consequences 
+\subsubsection{Threats to internal validity --- measurement of the outcome}
+\textbf{Differential measures}
+\begin{itemize}
+    \item sometimes it is hard to measure the same outcome in different treatment groups
+    \item psychological measures may change meaning due to treatment (or absence thereof)
+    \item actual behavior might be harder to observe in the absence or presence of the treatment
+\end{itemize}
+\textbf{ambiguous temporal precedence}
+\begin{itemize}
+    \item the type of measurement does not allow to distinguish whether treatment actually lies before the outcome or after $\to $ resolution of the measurement is too broad
+\end{itemize}
+\subsubsection{Threats to internal validity --- statistical conclusion validity}
+are the statistical assumptions of the method in use fulfilled?
+\begin{itemize}
+    \item knowledge of the design is important to choose the right statistical framwork for estimating the causal effects under given circumstances 
+\end{itemize}
+\newpage 
+\subsection{External validity}
+\subsubsection{Most common threats to external validity of experiments}
+\begin{itemize}
+    \item Non-representative sample
+    \begin{itemize}
+        \item sample size too small 
+        \item use of special participant groups: students, volunteers, pre-testers etc 
+    \end{itemize}
+    \item non-representative design / environment
+    \begin{itemize}
+        \item the treatment differs in actual implementations
+        \item context differs / idiosyncracy of the test situation 
+        \item different outcome variables 
+        \item equilibrium effects: implementing the treatment might change the economic environment as consumers and competitors adapt to the new situation 
+    \end{itemize}
+\end{itemize}
+\subsubsection{Types of experiments}
+\begin{minipage}[t][0.28\textheight][t]{0.48\textwidth}
+    \textbf{Lab experiment}
+    \begin{itemize}
+        \item environment is created by the researcher and thus differs from reality
+        \item high control over the experimental environment
+        \begin{itemize}
+            \item often high internal validity
+        \end{itemize}
+        \item low realism, participants may feel observed or do not represent the target population 
+        \vfill
+    \end{itemize}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t][0.28\textheight][t]{0.48\textwidth}
+    \textbf{Field experiment}
+    \begin{itemize}
+        \item everyday life situation; the same setting where the findings from the experiment will be deployed 
+        \item less control over the experimental environment
+        \begin{itemize}
+            \item lower internal validity
+        \end{itemize}
+        \item high realism, participants usually not aware, and more representative of the target population
+        \vfill
+    \end{itemize}
+    \end{minipage}
+    \vspace{1em}
+\subsubsection{Four key features of field experiments}
+\begin{itemize}
+    \item real-world context 
+    \item authenticity of treatment
+    \item representativeness of participants
+    \item relevant outcome measures 
+\end{itemize}
+\newpage 
+\section{Within subject designs}
+\begin{itemize}
+    \item builds on the core idea of temporal precedence
+    \item so far, 
+\end{itemize}
+\end{document}

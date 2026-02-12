@@ -1,0 +1,773 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/apasortcite//global/global/global}
+    \entry{fi16040125}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=08254ff58d5a565f1a2ba5a5938da816}{%
+           family={Balaskas},
+           familyi={B\bibinitperiod},
+           given={Stefanos},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=37aa19cce2c940ecd7ce590003b94d33}{%
+           family={Kotsari},
+           familyi={K\bibinitperiod},
+           given={Georgia},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=227f3c0ff041b510415c02aa8a58ab80}{%
+           family={Rigou},
+           familyi={R\bibinitperiod},
+           given={Maria},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{0319089956284ee787c3075cae3d5da8}
+      \strng{fullhash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{fullhashraw}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{bibnamehash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authorbibnamehash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authornamehash}{0319089956284ee787c3075cae3d5da8}
+      \strng{authorfullhash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authorfullhashraw}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Currently, there are a wide range of approaches to deploying digital ads, with advanced technologies now being harnessed to craft advertising that is engaging and even tailored to personal interests and preferences, yet potentially distracting and irritating. This research seeks to evaluate contemporary digital advertising methods by assessing how annoying they are to users, particularly when they distract users from intended tasks or cause delays in regular online activities. To pursue this, an eye-tracking study was conducted, with 51 participants navigating a specially designed website featuring seven distinct types of advertisements without a specific content to avoid the effect of ad content on the collected data. Participants were asked to execute specific information-seeking tasks during the experiment and afterwards to report if they recalled seeing each ad and the degree of annoyance by each ad type. Ad effectiveness is assessed by eye-tracking metrics (time to first fixation, average fixation duration, dwell time, fixation count, and revisit count) depicting how appealing an ad is as a marketing stimulus. Findings indicated that pop-ups, ads with content reorganization, and non-skippable videos ranked as the most annoying forms of advertising. Conversely, in-content ads without content reorganization, banners, and right rail ads were indicated as less intrusive options, seeming to strike a balance between effectiveness and user acceptance.}
+      \field{issn}{1999-5903}
+      \field{journaltitle}{Future Internet}
+      \field{number}{4}
+      \field{title}{Perspectives of Young Digital Natives on Digital Marketing: Exploring Annoyance and Effectiveness with Eye-Tracking Analysis}
+      \field{volume}{16}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.3390/fi16040125
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1999-5903/16/4/125
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1999-5903/16/4/125
+      \endverb
+    \endentry
+    \entry{braun2025abtesting}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6549fe610fc1d75fcf918a8b6ee89636}{%
+           family={Braun},
+           familyi={B\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f9371dc0122179c5197811de742038f5}{%
+           family={Schwartz},
+           familyi={S\bibinitperiod},
+           given={Eric\bibnamedelima M.},
+           giveni={E\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {American Marketing Association}%
+      }
+      \strng{namehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{fullhash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{fullhashraw}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{bibnamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorbibnamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authornamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorfullhash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorfullhashraw}{67011509f25d56ea9d98f1a8ef04bb32}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Marketing}
+      \field{month}{3}
+      \field{number}{2}
+      \field{title}{Where {A/B} Testing Goes Wrong: How Divergent Delivery Affects What Online Experiments Cannot (and Can) Tell You About How Customers Respond to Advertising}
+      \field{volume}{89}
+      \field{year}{2025}
+      \field{pages}{71\bibrangedash 95}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.1177/00222429241275886
+      \endverb
+      \verb{urlraw}
+      \verb https://journals.sagepub.com/doi/10.1177/00222429241275886
+      \endverb
+      \verb{url}
+      \verb https://journals.sagepub.com/doi/10.1177/00222429241275886
+      \endverb
+    \endentry
+    \entry{DJAFAROVA20171}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=95da6b158e7d4fa5b28f555cc8b1f235}{%
+           family={Djafarova},
+           familyi={D\bibinitperiod},
+           given={Elmira},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b8544ef73ec6b59c684ae3fdfb8e1bbf}{%
+           family={Rushworth},
+           familyi={R\bibinitperiod},
+           given={Chloe},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{fullhash}{875fcd4c09013626438039f14db30a5a}
+      \strng{fullhashraw}{875fcd4c09013626438039f14db30a5a}
+      \strng{bibnamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorbibnamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authornamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorfullhash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorfullhashraw}{875fcd4c09013626438039f14db30a5a}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The growth of Instagram continues, with the majority of its users being young women. This study investigates the impact of Instagram upon source credibility, consumer buying intention and social identification with different types of celebrities. In-depth interviews were conducted with 18 female Instagram users aged 18–30 to determine the extent to which Instagram influences their buying behaviour. The research findings show that celebrities on Instagram are influential in the purchase behaviour of young female users. However, non-traditional celebrities such as bloggers, YouTube personalities and ‘Instafamous’ profiles are more powerful, as participants regard them as more credible and are able to relate to these, rather than more traditional, celebrities. Female users are perceptively aware and prefer to follow Instagram profiles that intentionally portray positive images and provide encouraging reviews.}
+      \field{issn}{0747-5632}
+      \field{journaltitle}{Computers in Human Behavior}
+      \field{title}{Exploring the credibility of online celebrities' Instagram profiles in influencing the purchase decisions of young female users}
+      \field{volume}{68}
+      \field{year}{2017}
+      \field{pages}{1\bibrangedash 7}
+      \range{pages}{7}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.chb.2016.11.009
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
+      \endverb
+      \keyw{eWOM,Source Credibility Theory,Halo Effect,Celebrity endorsement}
+    \endentry
+    \entry{gohil2025influencer}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=79d93e55c911ed20d141059fc2eb71e9}{%
+           family={Gohil},
+           familyi={G\bibinitperiod},
+           given={Siddharajsinh\bibnamedelima A.},
+           giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=262d2789942ee6c7154c1290d43f6a06}{%
+           family={Nagariya},
+           familyi={N\bibinitperiod},
+           given={Bhautik\bibnamedelima K.},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=179029680b9e86aebb49368db26bcbf4}{%
+           family={Parmar},
+           familyi={P\bibinitperiod},
+           given={Ajay\bibnamedelima U.},
+           giveni={A\bibinitperiod\bibinitdelim U\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a7b469644d78ec9329e00f4473465004}{%
+           family={Joshi},
+           familyi={J\bibinitperiod},
+           given={Pooja\bibnamedelima D.},
+           giveni={P\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7f0f68455a1cb3c628ab3fd5c09547e0}{%
+           family={Joshi},
+           familyi={J\bibinitperiod},
+           given={Dilip\bibnamedelima B.},
+           giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{41274b7738a8169166d8ddabcd1eb80e}
+      \strng{fullhash}{313efe10930ae64fc810bf059fd42911}
+      \strng{fullhashraw}{313efe10930ae64fc810bf059fd42911}
+      \strng{bibnamehash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authorbibnamehash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authornamehash}{41274b7738a8169166d8ddabcd1eb80e}
+      \strng{authorfullhash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authorfullhashraw}{313efe10930ae64fc810bf059fd42911}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0098-9258}
+      \field{journaltitle}{Advances in Consumer Research}
+      \field{month}{10}
+      \field{number}{5}
+      \field{title}{The Impact of Influencer Authenticity on Purchase Intentions among {Gen Z} Consumers}
+      \field{volume}{2}
+      \field{year}{2025}
+      \field{pages}{890\bibrangedash 903}
+      \range{pages}{14}
+      \verb{urlraw}
+      \verb https://acr-journal.com/article/the-impact-of-influencer-authenticity-on-purchase-intentions-among-gen-z-consumers--1767/
+      \endverb
+      \verb{url}
+      \verb https://acr-journal.com/article/the-impact-of-influencer-authenticity-on-purchase-intentions-among-gen-z-consumers--1767/
+      \endverb
+    \endentry
+    \entry{gordon2019comparison}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=921e6a6e3ae5bfc8a9bf77b76aa0fa75}{%
+           family={Gordon},
+           familyi={G\bibinitperiod},
+           given={Brett\bibnamedelima R.},
+           giveni={B\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c909b844b35bc5ee1f37cae84693de1b}{%
+           family={Zettelmeyer},
+           familyi={Z\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3790cd1f9fec95cf57406327b628d9c2}{%
+           family={Bhargava},
+           familyi={B\bibinitperiod},
+           given={Neha},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1815a263e419db7b4deba70e1a887d6c}{%
+           family={Chapsky},
+           familyi={C\bibinitperiod},
+           given={Dan},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {INFORMS}%
+      }
+      \strng{namehash}{789e0c3b7c44c1a0c15042883be2a030}
+      \strng{fullhash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{fullhashraw}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{bibnamehash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authorbibnamehash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authornamehash}{789e0c3b7c44c1a0c15042883be2a030}
+      \strng{authorfullhash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authorfullhashraw}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Marketing Science}
+      \field{month}{4}
+      \field{number}{2}
+      \field{title}{A Comparison of Approaches to Advertising Measurement: Evidence from Big Field Experiments at {Facebook}}
+      \field{volume}{38}
+      \field{year}{2019}
+      \field{pages}{193\bibrangedash 225}
+      \range{pages}{33}
+      \verb{doi}
+      \verb 10.1287/mksc.2018.1135
+      \endverb
+      \verb{urlraw}
+      \verb https://pubsonline.informs.org/doi/10.1287/mksc.2018.1135
+      \endverb
+      \verb{url}
+      \verb https://pubsonline.informs.org/doi/10.1287/mksc.2018.1135
+      \endverb
+    \endentry
+    \entry{singer2023influencer}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=1998c68cdc5e348857fafc6b9d42e664}{%
+           family={Singer},
+           familyi={S\bibinitperiod},
+           given={Mara\bibnamedelima F.},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b87b64874f28eff90b1cbeafd2a389f7}{%
+           family={Callendar},
+           familyi={C\bibinitperiod},
+           given={Chaz\bibnamedelima L.},
+           giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5d38fb894354b4d9907d6b0143642902}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Xiao},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e8d4d19a7fadb470ba0d2bc7b4bdd7d1}{%
+           family={Tham},
+           familyi={T\bibinitperiod},
+           given={Samuel\bibnamedelima M.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {De Gruyter Mouton}%
+      }
+      \strng{namehash}{1c2f03236f82b51200538b76ae37da82}
+      \strng{fullhash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{fullhashraw}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{bibnamehash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authorbibnamehash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authornamehash}{1c2f03236f82b51200538b76ae37da82}
+      \strng{authorfullhash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authorfullhashraw}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Online Media and Global Communication}
+      \field{month}{9}
+      \field{number}{3}
+      \field{title}{Differences in Perceived Influencer Authenticity: A Comparison of {Gen Z} and {Millennials'} Definitions of Influencer Authenticity During the De-Influencer Movement}
+      \field{volume}{2}
+      \field{year}{2023}
+      \field{pages}{351\bibrangedash 378}
+      \range{pages}{28}
+      \verb{doi}
+      \verb 10.1515/omgc-2023-0038
+      \endverb
+    \endentry
+    \entry{sterling2015adblocking}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=2bfd5344d26513ca3bb54eb2a2a8acf0}{%
+           family={Sterling},
+           familyi={S\bibinitperiod},
+           given={Greg},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{fullhash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{fullhashraw}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{bibnamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorbibnamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authornamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorfullhash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorfullhashraw}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{MarTech}
+      \field{month}{8}
+      \field{note}{Accessed: 2026-02-12}
+      \field{title}{Ad-Blocking Report: {Nearly} 200 Million Users, \$22 Billion in Lost Ad Revenue}
+      \field{year}{2015}
+      \verb{urlraw}
+      \verb https://martech.org/ad-blocking-report-nearly-200-million-users-22-billion-in-lost-ad-revenue/
+      \endverb
+      \verb{url}
+      \verb https://martech.org/ad-blocking-report-nearly-200-million-users-22-billion-in-lost-ad-revenue/
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{fi16040125}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=08254ff58d5a565f1a2ba5a5938da816}{%
+           family={Balaskas},
+           familyi={B\bibinitperiod},
+           given={Stefanos},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=37aa19cce2c940ecd7ce590003b94d33}{%
+           family={Kotsari},
+           familyi={K\bibinitperiod},
+           given={Georgia},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=227f3c0ff041b510415c02aa8a58ab80}{%
+           family={Rigou},
+           familyi={R\bibinitperiod},
+           given={Maria},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{0319089956284ee787c3075cae3d5da8}
+      \strng{fullhash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{fullhashraw}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{bibnamehash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authorbibnamehash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authornamehash}{0319089956284ee787c3075cae3d5da8}
+      \strng{authorfullhash}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \strng{authorfullhashraw}{041df6e2ad5a0eb34d13d9e3282d9bec}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Currently, there are a wide range of approaches to deploying digital ads, with advanced technologies now being harnessed to craft advertising that is engaging and even tailored to personal interests and preferences, yet potentially distracting and irritating. This research seeks to evaluate contemporary digital advertising methods by assessing how annoying they are to users, particularly when they distract users from intended tasks or cause delays in regular online activities. To pursue this, an eye-tracking study was conducted, with 51 participants navigating a specially designed website featuring seven distinct types of advertisements without a specific content to avoid the effect of ad content on the collected data. Participants were asked to execute specific information-seeking tasks during the experiment and afterwards to report if they recalled seeing each ad and the degree of annoyance by each ad type. Ad effectiveness is assessed by eye-tracking metrics (time to first fixation, average fixation duration, dwell time, fixation count, and revisit count) depicting how appealing an ad is as a marketing stimulus. Findings indicated that pop-ups, ads with content reorganization, and non-skippable videos ranked as the most annoying forms of advertising. Conversely, in-content ads without content reorganization, banners, and right rail ads were indicated as less intrusive options, seeming to strike a balance between effectiveness and user acceptance.}
+      \field{issn}{1999-5903}
+      \field{journaltitle}{Future Internet}
+      \field{number}{4}
+      \field{title}{Perspectives of Young Digital Natives on Digital Marketing: Exploring Annoyance and Effectiveness with Eye-Tracking Analysis}
+      \field{volume}{16}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.3390/fi16040125
+      \endverb
+      \verb{urlraw}
+      \verb https://www.mdpi.com/1999-5903/16/4/125
+      \endverb
+      \verb{url}
+      \verb https://www.mdpi.com/1999-5903/16/4/125
+      \endverb
+    \endentry
+    \entry{braun2025abtesting}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=6549fe610fc1d75fcf918a8b6ee89636}{%
+           family={Braun},
+           familyi={B\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f9371dc0122179c5197811de742038f5}{%
+           family={Schwartz},
+           familyi={S\bibinitperiod},
+           given={Eric\bibnamedelima M.},
+           giveni={E\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {American Marketing Association}%
+      }
+      \strng{namehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{fullhash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{fullhashraw}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{bibnamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorbibnamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authornamehash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorfullhash}{67011509f25d56ea9d98f1a8ef04bb32}
+      \strng{authorfullhashraw}{67011509f25d56ea9d98f1a8ef04bb32}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Marketing}
+      \field{month}{3}
+      \field{number}{2}
+      \field{title}{Where {A/B} Testing Goes Wrong: How Divergent Delivery Affects What Online Experiments Cannot (and Can) Tell You About How Customers Respond to Advertising}
+      \field{volume}{89}
+      \field{year}{2025}
+      \field{pages}{71\bibrangedash 95}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.1177/00222429241275886
+      \endverb
+      \verb{urlraw}
+      \verb https://journals.sagepub.com/doi/10.1177/00222429241275886
+      \endverb
+      \verb{url}
+      \verb https://journals.sagepub.com/doi/10.1177/00222429241275886
+      \endverb
+    \endentry
+    \entry{DJAFAROVA20171}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=95da6b158e7d4fa5b28f555cc8b1f235}{%
+           family={Djafarova},
+           familyi={D\bibinitperiod},
+           given={Elmira},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b8544ef73ec6b59c684ae3fdfb8e1bbf}{%
+           family={Rushworth},
+           familyi={R\bibinitperiod},
+           given={Chloe},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{fullhash}{875fcd4c09013626438039f14db30a5a}
+      \strng{fullhashraw}{875fcd4c09013626438039f14db30a5a}
+      \strng{bibnamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorbibnamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authornamehash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorfullhash}{875fcd4c09013626438039f14db30a5a}
+      \strng{authorfullhashraw}{875fcd4c09013626438039f14db30a5a}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The growth of Instagram continues, with the majority of its users being young women. This study investigates the impact of Instagram upon source credibility, consumer buying intention and social identification with different types of celebrities. In-depth interviews were conducted with 18 female Instagram users aged 18–30 to determine the extent to which Instagram influences their buying behaviour. The research findings show that celebrities on Instagram are influential in the purchase behaviour of young female users. However, non-traditional celebrities such as bloggers, YouTube personalities and ‘Instafamous’ profiles are more powerful, as participants regard them as more credible and are able to relate to these, rather than more traditional, celebrities. Female users are perceptively aware and prefer to follow Instagram profiles that intentionally portray positive images and provide encouraging reviews.}
+      \field{issn}{0747-5632}
+      \field{journaltitle}{Computers in Human Behavior}
+      \field{title}{Exploring the credibility of online celebrities' Instagram profiles in influencing the purchase decisions of young female users}
+      \field{volume}{68}
+      \field{year}{2017}
+      \field{pages}{1\bibrangedash 7}
+      \range{pages}{7}
+      \verb{doi}
+      \verb https://doi.org/10.1016/j.chb.2016.11.009
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
+      \endverb
+      \keyw{eWOM,Source Credibility Theory,Halo Effect,Celebrity endorsement}
+    \endentry
+    \entry{gohil2025influencer}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=79d93e55c911ed20d141059fc2eb71e9}{%
+           family={Gohil},
+           familyi={G\bibinitperiod},
+           given={Siddharajsinh\bibnamedelima A.},
+           giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=262d2789942ee6c7154c1290d43f6a06}{%
+           family={Nagariya},
+           familyi={N\bibinitperiod},
+           given={Bhautik\bibnamedelima K.},
+           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=179029680b9e86aebb49368db26bcbf4}{%
+           family={Parmar},
+           familyi={P\bibinitperiod},
+           given={Ajay\bibnamedelima U.},
+           giveni={A\bibinitperiod\bibinitdelim U\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a7b469644d78ec9329e00f4473465004}{%
+           family={Joshi},
+           familyi={J\bibinitperiod},
+           given={Pooja\bibnamedelima D.},
+           giveni={P\bibinitperiod\bibinitdelim D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7f0f68455a1cb3c628ab3fd5c09547e0}{%
+           family={Joshi},
+           familyi={J\bibinitperiod},
+           given={Dilip\bibnamedelima B.},
+           giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{41274b7738a8169166d8ddabcd1eb80e}
+      \strng{fullhash}{313efe10930ae64fc810bf059fd42911}
+      \strng{fullhashraw}{313efe10930ae64fc810bf059fd42911}
+      \strng{bibnamehash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authorbibnamehash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authornamehash}{41274b7738a8169166d8ddabcd1eb80e}
+      \strng{authorfullhash}{313efe10930ae64fc810bf059fd42911}
+      \strng{authorfullhashraw}{313efe10930ae64fc810bf059fd42911}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0098-9258}
+      \field{journaltitle}{Advances in Consumer Research}
+      \field{month}{10}
+      \field{number}{5}
+      \field{title}{The Impact of Influencer Authenticity on Purchase Intentions among {Gen Z} Consumers}
+      \field{volume}{2}
+      \field{year}{2025}
+      \field{pages}{890\bibrangedash 903}
+      \range{pages}{14}
+      \verb{urlraw}
+      \verb https://acr-journal.com/article/the-impact-of-influencer-authenticity-on-purchase-intentions-among-gen-z-consumers--1767/
+      \endverb
+      \verb{url}
+      \verb https://acr-journal.com/article/the-impact-of-influencer-authenticity-on-purchase-intentions-among-gen-z-consumers--1767/
+      \endverb
+    \endentry
+    \entry{gordon2019comparison}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=921e6a6e3ae5bfc8a9bf77b76aa0fa75}{%
+           family={Gordon},
+           familyi={G\bibinitperiod},
+           given={Brett\bibnamedelima R.},
+           giveni={B\bibinitperiod\bibinitdelim R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c909b844b35bc5ee1f37cae84693de1b}{%
+           family={Zettelmeyer},
+           familyi={Z\bibinitperiod},
+           given={Florian},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3790cd1f9fec95cf57406327b628d9c2}{%
+           family={Bhargava},
+           familyi={B\bibinitperiod},
+           given={Neha},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1815a263e419db7b4deba70e1a887d6c}{%
+           family={Chapsky},
+           familyi={C\bibinitperiod},
+           given={Dan},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {INFORMS}%
+      }
+      \strng{namehash}{789e0c3b7c44c1a0c15042883be2a030}
+      \strng{fullhash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{fullhashraw}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{bibnamehash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authorbibnamehash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authornamehash}{789e0c3b7c44c1a0c15042883be2a030}
+      \strng{authorfullhash}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \strng{authorfullhashraw}{72fc51461887d1be346c6ec4fbb4eb1e}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Marketing Science}
+      \field{month}{4}
+      \field{number}{2}
+      \field{title}{A Comparison of Approaches to Advertising Measurement: Evidence from Big Field Experiments at {Facebook}}
+      \field{volume}{38}
+      \field{year}{2019}
+      \field{pages}{193\bibrangedash 225}
+      \range{pages}{33}
+      \verb{doi}
+      \verb 10.1287/mksc.2018.1135
+      \endverb
+      \verb{urlraw}
+      \verb https://pubsonline.informs.org/doi/10.1287/mksc.2018.1135
+      \endverb
+      \verb{url}
+      \verb https://pubsonline.informs.org/doi/10.1287/mksc.2018.1135
+      \endverb
+    \endentry
+    \entry{singer2023influencer}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=1998c68cdc5e348857fafc6b9d42e664}{%
+           family={Singer},
+           familyi={S\bibinitperiod},
+           given={Mara\bibnamedelima F.},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b87b64874f28eff90b1cbeafd2a389f7}{%
+           family={Callendar},
+           familyi={C\bibinitperiod},
+           given={Chaz\bibnamedelima L.},
+           giveni={C\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5d38fb894354b4d9907d6b0143642902}{%
+           family={Ma},
+           familyi={M\bibinitperiod},
+           given={Xiao},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e8d4d19a7fadb470ba0d2bc7b4bdd7d1}{%
+           family={Tham},
+           familyi={T\bibinitperiod},
+           given={Samuel\bibnamedelima M.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {De Gruyter Mouton}%
+      }
+      \strng{namehash}{1c2f03236f82b51200538b76ae37da82}
+      \strng{fullhash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{fullhashraw}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{bibnamehash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authorbibnamehash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authornamehash}{1c2f03236f82b51200538b76ae37da82}
+      \strng{authorfullhash}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \strng{authorfullhashraw}{5ed2353ff8fdfcfc1c974cb1b7237aee}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Online Media and Global Communication}
+      \field{month}{9}
+      \field{number}{3}
+      \field{title}{Differences in Perceived Influencer Authenticity: A Comparison of {Gen Z} and {Millennials'} Definitions of Influencer Authenticity During the De-Influencer Movement}
+      \field{volume}{2}
+      \field{year}{2023}
+      \field{pages}{351\bibrangedash 378}
+      \range{pages}{28}
+      \verb{doi}
+      \verb 10.1515/omgc-2023-0038
+      \endverb
+    \endentry
+    \entry{sterling2015adblocking}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=2bfd5344d26513ca3bb54eb2a2a8acf0}{%
+           family={Sterling},
+           familyi={S\bibinitperiod},
+           given={Greg},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{fullhash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{fullhashraw}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{bibnamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorbibnamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authornamehash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorfullhash}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \strng{authorfullhashraw}{2bfd5344d26513ca3bb54eb2a2a8acf0}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{MarTech}
+      \field{month}{8}
+      \field{note}{Accessed: 2026-02-12}
+      \field{title}{Ad-Blocking Report: {Nearly} 200 Million Users, \$22 Billion in Lost Ad Revenue}
+      \field{year}{2015}
+      \verb{urlraw}
+      \verb https://martech.org/ad-blocking-report-nearly-200-million-users-22-billion-in-lost-ad-revenue/
+      \endverb
+      \verb{url}
+      \verb https://martech.org/ad-blocking-report-nearly-200-million-users-22-billion-in-lost-ad-revenue/
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

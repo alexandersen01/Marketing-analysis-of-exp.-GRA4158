@@ -1,0 +1,796 @@
+\documentclass[10pt]{article}
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage{float}
+\usepackage[bb=boondox,bbscaled=.95,cal=boondoxo]{mathalfa}
+\usepackage{abstract}
+\usepackage{listings}        % for code formatting
+\usepackage{xcolor}          % for code syntax colors
+\usepackage[hidelinks, breaklinks=true]{hyperref}
+
+
+% Bibliography
+\usepackage[
+    backend=biber,
+    style=apa,               % APA style (common in marketing)
+    sorting=nyt
+]{biblatex}
+\addbibresource{sources.bib}
+
+% Abstract styling
+\renewcommand{\abstractnamefont}{\normalfont\bfseries\large}
+\renewcommand{\abstracttextfont}{\normalfont\small}
+\setlength{\absleftindent}{0.5in}
+\setlength{\absrightindent}{0.5in}
+
+% Code styling
+\lstset{
+    language=Python,               % change to Python if needed
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red!70!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=2,
+    captionpos=b
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+
+% ── Title ──
+\title{Complete Portfolio}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments}
+\maketitle
+
+% ── Abstract ──
+\begin{abstract}
+    \noindent
+    This portfolio presents solutions to four assignments covering 
+    the design and analysis of experiments and quasi-experiments in 
+    marketing research. Task~1 estimates the causal effect of digital advertising on purchase conversion using a randomized experiment, addressing non-compliance through IV estimation and assessing ad profitability. Task~2 explores... 
+    Task~3 examines... Task~4 investigates...
+
+    Please note that all code is included in the appendix, and will be referenced throughout the paper. 
+\end{abstract}
+    
+
+% ── Table of Contents ──
+\newpage
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════
+%   TASKS
+% ══════════════════════════════════════
+
+\section{Task 1: The Gen-Z Intern}
+
+\subsection{Non-Compliance Detective}
+In order to check for non-compliance, we need to see if the treatment group (test = 1) should see ads (impressions $> 0$), and the control group should NOT see ads (impressions = 0 in practice )
+
+    Since the control group has ``ghost ads'' (hypothetical impressions), non-compliance would be if the control group actually SAW ads. 
+
+\begin{lstlisting}
+treatment_group = df[df['test'] == 1]
+control_group = df[df['test'] == 0]
+
+treatment_no_exposure = treatment_group[treatment_group['impressions'] == 0]
+treatment_with_exposure = treatment_group[treatment_group['impressions'] > 0]
+
+compliance_rate_treatment = len(treatment_with_exposure) / len(treatment_group)
+non_compliance_rate = len(treatment_no_exposure) / len(treatment_group)
+\end{lstlisting}
+\begin{verbatim}
+> treatment group size: 25072
+> treatment group with impressions > 0 (compliers): 19694
+> treatment group with impressions = 0 (non-compliers): 5378
+> compliance rate in treatment: 0.7855 (78.55%)
+> non-compliance rate: 0.2145 (21.45%)
+> control group with 0 ghost impressions: 0.2159017971758665
+
+\end{verbatim}
+
+    The data shows one-sided non-compliance. In the treatment group, 21.45\% were assigned to receive ads but had 0 impressions (the never-takers). The control group shows perfect compliance. The ghost ads system ensures that the control group never actually saw ads. The 21.59\% with 0 ghost impressions simply indicates users who would not have been exposed regardless of assignment. This is \underline{not} two-sided non-compliance because no one in the control group actually received treatment. The full code and outputs for this task is provided in Appendix~\ref{app:task_one}
+
+    We are able to estimate ITT because we have a simple comparison of means by assignment (test = 0 vs test = 1). We cannot observe counterfactual for never-takers who may systematically differ, so we cannot estimate ATE. A naive ATET estimate (comparing those with impressions $> 0 $ in treatment vs. controls) would be biased because never-takers may systematically differ from compliers. Without additional assumptions, ATET is not cleanly identified. LATE is also estimable since using assignment as an instrument for actual exposure estimates effect for compliers. Since we have one-sided non-compliance with perfect compliance in control, LATE = ATET for compliers, which is actually quite informative for managerial decisions. 
+\newpage
+\subsection{Treatment effect estimates}
+The difference in conversion rates between assignment groups is 0.465 percentage points ($p = 0.001$, 95\% CI : [0.2pp, 0.7pp]). This represents the effect of being \textit{assigned} to see ads, regardless of actual exposure. The control group conversion rate was 2.4\% and the treatment group was 2.87\%. 
+
+\begin{lstlisting}
+#bin var treatment indicator (actually saw ads)
+df['saw_ads'] = ((df['test'] == 1) & (df['impressions'] > 0)).astype(int)
+
+#ITT
+itt_control = df[df['test'] == 0]['purchase'].mean()
+itt_treatment = df[df['test'] == 1]['purchase'].mean()
+itt_effect = itt_treatment - itt_control
+
+print(f'control group conversion rate: {itt_control}')
+print(f'treatment group conversion rate: {itt_treatment}\nITT effect: {itt_effect}')
+
+#ITT with regression (for st err)
+X_itt = sm.add_constant(df['test'])
+model_itt = sm.OLS(df['purchase'], X_itt).fit(cov_type='HC1') #robust SEs 
+print(f'regression:\n{model_itt.summary().tables[1]}')
+\end{lstlisting}
+\begin{verbatim}
+> control group conversion rate: 0.024029204107830552
+> treatment group conversion rate: 0.028677409061901724
+> ITT effect: 0.004648204954071172
+> regression:
+> ==============================================================================
+>                  coef    std err          z      P>|z|      [0.025      0.975]
+> ------------------------------------------------------------------------------
+> const          0.0240      0.001     24.773      0.000       0.022       0.026
+> test           0.0046      0.001      3.245      0.001       0.002       0.007
+> ==============================================================================
+\end{verbatim}
+
+\textbf{LATE}: Using random assignment as an instrument for actual ad exposure, we estimate the effect of \textit{actually seeing} ads for compliers is 0.59 percentage points ($p = 0.001$, CI: [0.23pp, 0.95pp])
+
+\begin{lstlisting}
+#LATE via IV
+#instrument: test, endo: saw_ads, outcome: purchase 
+
+df_iv = df[['purchase', 'saw_ads', 'test']].copy()
+df_iv['const'] = 1 
+
+iv_model = IV2SLS(
+    dependent=df_iv['purchase'],
+    exog=df_iv['const'],
+    endog=df_iv['saw_ads'],
+    instruments=df_iv['test'],
+).fit(cov_type='robust')
+
+iv_model.summary
+\end{lstlisting}
+\newpage 
+\begin{verbatim}
+> IV-2SLS Estimation Summary
+> Dep. Variable:	purchase	R-squared:	0.0015
+> Estimator:	IV-2SLS	Adj. R-squared:	0.0015
+> No. Observations:	50000	F-statistic:	10.544
+> Date:	Wed, Feb 04 2026	P-value (F-stat)	0.0012
+> Time:	17:58:29	Distribution:	chi2(1)
+> Cov. Estimator:	robust		
+> Parameter Estimates
+> Parameter	Std. Err.	T-stat	P-value	Lower CI	Upper CI
+> const	0.0240	0.0010	24.774	0.0000	0.0221	0.0259
+> saw_ads	0.0059	0.0018	3.2471	0.0012	0.0023	0.0095
+
+\end{verbatim}
+
+\textbf{Interpretation}: For every 1,000 users who see the ad, we expect approximately 6 additional conversions compared to not showing ads. The LATE is larger than the ITT because the ITT is diluted by never-takers (users assigned to treatment who never visited the site). 
+
+Note: We do not report an ATET estimate because it would suffer from selection bias, as mentioned in task 1.
+
+\subsection{Impressive Impressions}
+\begin{lstlisting}
+#create impression bins for strat analysis
+df['imp_bins'] = pd.cut(df['impressions'], bins=[-1, 0, 1, 2, 3, 5, 10, 20], labels=['0', '1', '2', '3', '4-5', '6-10', '11+'])
+
+#calc ITT bu imp bin
+cate_by_bin = df.groupby(['imp_bins', 'test'])['purchase'].agg(['mean', 'count', 'std']).unstack()
+cate_by_bin.columns = ['_'.join(map(str, col)) for col in cate_by_bin.columns] #convert to str before joining
+cate_by_bin['ITT'] = cate_by_bin['mean_1'] - cate_by_bin['mean_0']
+cate_by_bin['n_total'] = cate_by_bin['count_0'] + cate_by_bin['count_1']
+
+cate_by_bin[['mean_0', 'mean_1', 'ITT', 'n_total']].round(4)
+\end{lstlisting}
+\begin{verbatim}
+>       mean_0	mean_1	ITT   n_total
+> imp_bins				
+> 0	    0.0000	0.0000	0.0000	10760
+> 1	    0.0000	0.0000	0.0000	2932
+> 2	    0.0000	0.0000	0.0000	5860
+> 3	    0.0000	0.0000	0.0000	7830
+> 4-5	0.0000	0.0001	0.0001	14039
+> 6-10	0.1302	0.1564	0.0262	8478
+> 11+	1.0000	1.0000	0.0000	101
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+    #regression with interaction to test heterogeneity
+    #model: purchase ~ test + impressions + test*impressions
+        
+    df['test_x_imp'] = df['test'] * df['impressions']
+    X_interact = sm.add_constant(df[['test', 'impressions', 'test_x_imp']])
+    model_interact = sm.OLS(df['purchase'], X_interact).fit(cov_type='HC1')
+        
+    print(model_interact.summary().tables[1])
+    \end{lstlisting}
+    \begin{verbatim}
+    > ===============================================================================
+    >     coef    std err          z      P>|z|      [0.025      0.975]
+    > -------------------------------------------------------------------------------
+    > const          -0.0533      0.002    -27.571      0.000      -0.057      -0.050
+    > test           -0.0067      0.003     -2.420      0.016      -0.012      -0.001
+    > impressions     0.0242      0.001     28.343      0.000       0.023       0.026
+    > test_x_imp      0.0035      0.001      2.866      0.004       0.001       0.006
+    > ===============================================================================
+    > - base effect of treatment (at 0 impressions): -0.0066651281558449925
+    > - additional effect per impression: 0.003506070910565647
+    > - interaction significant? p = 0.004154874372134771
+    
+\end{verbatim}
+The interaction model reveals significant heterogeneity in treatment effects ($p = 0.004 $). The effect of ads increases with the number of impressions: 
+\begin{itemize}
+    \item 0-5 impressions: near-zero treatment effect (ITT $\approx 0 $)
+    \item 6-10 impressions: ITT = 2.62 percentage points, substantially higher than the overall average 
+    \item Per-impression effect: each additional impression adds approximately 0.35 percentage points to the treatment effect 
+\end{itemize}
+This suggests a ``threshold effect'', ads need repeated exposure before influencing purchase behavior. The practical implication is that low-frequency exposure may not be cost-effective; the company should prioritize reaching users with 6+ impressions to maximize ROI. 
+
+These findings supplement our earlier estimates by showing that the overall ITT (0.46pp) and LATE (0.59pp) are \textit{averages across heterogeneous effects}. The true effect for high-exposure users is considerably larger. 
+\newpage
+\subsection{Is showing ads profitable?}
+\begin{lstlisting}
+contribution_per_purchase = 200
+cost_per_impression = 100 / 1_000
+
+late_effect = 0.0059 
+itt_effect = 0.00465
+
+avg_impressions_treatment = df[df['test'] == 1]['impressions'].mean()
+avg_impressions_control = df[df['test'] == 0]['impressions'].mean()  # ghost impressions
+avg_impressions_compliers = df[(df['test'] == 1) & (df['impressions'] > 0)]['impressions'].mean()
+revenue_lift_per_user = itt_effect * contribution_per_purchase
+cost_per_user = avg_impressions_treatment * cost_per_impression
+net_contribution_per_user_itt = revenue_lift_per_user - cost_per_user
+n_treatment = len(df[df['test'] == 1])
+total_impressions_treatment = df[df['test'] == 1]['impressions'].sum()
+
+total_revenue_lift = n_treatment * itt_effect * contribution_per_purchase
+total_ad_cost = total_impressions_treatment * cost_per_impression
+total_net_contribution = total_revenue_lift - total_ad_cost
+\end{lstlisting}
+\begin{verbatim}
+> contribution per purchase: 200 NOK
+> cost per impression: 0.1 NOK
+> average impressions (treatment): 3.20
+> average impressions (compliers only): 4.07
+> revenue lift per user: 0.9299999999999999
+> ad cost per user: 0.32007418634333124
+> net contribution per user: 0.6099258136566688
+> ROI: 190.5576393475308
+> users in treatment: 25072
+> total impressions served: 80249
+> expected additional conversions: 116.58479999999999
+> total revenue lift: 23316.96 NOK
+> total ad cost: 8024.900000000001 NOK
+> net contribution: 15292.059999999998 NOK
+
+
+
+\end{verbatim}
+Yes, the advertising campaign is profitable. Using the ITT estimate, each user assigned to treatment generates a revenue lift of 0.93 NOK ($0.465\%\times 200 \text{NOK} $) at a cost of 0.32 NOK (3.2 impressions $\times 0.10 $ NOK), yielding a \textbf{net contribution of 0.61 NOK per user} and an \textbf{ROI of approximately 190\%}
+
+At the campaign level, the treatment group of $\sim $25k users generated approximately 117 additional conversions, with a total revenue lift of 23,317 NOK against ad costs of 8,025 NOK, for a \textbf{net contribution of 15,292 NOK.}
+
+Sensitivity analysis shows substantial margins of safety; the campaign remains profitable as long as contribution per purchase exceeds 69 NOK (current: 200 NOK). The campaign can tolerate CPM up to 291 NOK before it becomes unprofitable (current: 100 NOK). The treatment effect could fall to $0.16\% $ before breaking even (current: $0.46\% $). All parameters have approximately 66\% margin of safety, indicating that profitability conclusion is robust to measurement uncertainty. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{image1.png}
+\end{figure}
+
+\subsection{Discussion of methods:}
+\begin{enumerate}
+    \item ITT: We estimated the ITT effect using OLS regression of purchase outcomes on treatment assignment, using heteroskedasticity-consistent standard errors. This approach relies on random assignment, which is satisfied by the experimental design. The primary limitation of the ITT estimate is that it represents a ``diluted'' effect because it includes never-takers who were assigned to treatment but never actually saw ads. Additionally, the linear probability model used for the binary outcome can \textit{in theory} produce predicted probabilities outside the $[0, 1] $ range (although this is rarely problematic for estimating average effects). Alternative approaches include logistic regression (as mentioned in lecture 5), which provide odds-ratios rather than percentage point changes. 
+    \item LATE: To account for non-compliance, we estimated the LATE using two-stage least squares with random assignment as an instrument for actual ad exposure. This approach requires four key assumptions: relevance (assignment must affect actual exposure), the exclusion restriction (assignment affects purchase only through ad exposure), monotonicity (no defiers who would only see ads when assigned to control), and independence (random assignment). Our first stage is strong with a compliance difference of 78.5\%, satisfying the relevance condition. 
+
+    The main limitation to LATE is that it identifies the causal effect only for compliers (those who see ads when assigned to treatment and don't see ads when assigned to control). This effect may not generalize to never-takers, whose response to ads we cannot observe. The exclusion restriction is fundamentally untestable and could be violated if merely being part of an experiment affects behavior independently of ad exposure. Alternative approaches include bounds analysis, which relaxes assumptions at the cost of wider intervals, or principal stratification methods. 
+    \item CATE: We examined effect heterogeneity by impression level using an interaction model that included treatment, impressions and their product. This approach test whether the treatment effect varies systematically with exposure intensity. The key assumption is that this relationship is linear, which may miss more complex non-linear patterns such as threshold effects or diminishing returns. The ghost ads design is particularly valuable here, as it allows us to compare treatment and control groups at the same hypothetical exposure levels. 
+    
+    Limitations include the parametric nature of the interaction specification and concerns about multiple comparisons when testing many sub-groups. Small sample sizes at extreme impression levels (the 11+ bin in the code contains only 101 observations) also reduce precision and reliability for those estimates. More flexible alternatives include causal forests or other ML-based methods. 
+
+    Our inference relies on asymptotic approximations with robust standard errors to account for heteroskedasticity, which is particularly important for binary outcomes where variance inherently depends on the mean. With 50k observations, large-sample approximations are generally reliable. However, our standard errors do not account for potential clustering --- if users share devices or households, observations may not be independent, and cluster-robust standard errors would be more appropriate. 
+    
+    \item SUTVA has two components: no interference between units and no hidden versions of treatment. The first component requires that one user's treatment status does not affect another user's outcome. This could be violated through word-of-mouth (a user who sees the ad might tell a user in the control group about the ad, influencing their purchase decision), shared devices / households, or social network effects. These inference effects would typically cause us to \textit{underestimate} the true ad effect, because some of the treatment ``spills over'' to control. The second component assumes that there is only one version of treatment. In this experiment, users could receive different numbers of impressions, which are effectively different ``doses'' of treatment. Our CATE analysis showed that the treatment effect varies substantially with impression count; users with 6+ impressions showed much larger effects than those with 1-5 impressions. The heterogeneity in treatment intensity means our average estimates (ITT, LATE) mask important variation. The single ``treatment effect'' is actually a weighted average across very different exposure levels. 
+
+    \item The exclusion restriction (for IV/LATE) requires that random assignment affects purchases \textit{only through} actual ad exposure. This could be violated through the Hawthorne effect; if users somehow became aware that they were in an experiment and let it affect their behavior. It could also be affected through the tracking cookie placed for randomization; by itself, it might affect user experience or trigger other platform behaviors that influence purchase. In this experiment, the ghost ads design helps satisfy the exclusion restriction by ensuring the control group has comparable tracking to the treatment group. This is a strength of the experimental design. If the exclusion restriction were to be violated, it would bias the LATE estimate. The direction depends on how the violation affects behavior. 
+
+    \item Monotonicity requires that no user would see ads only when assigned to control. In this design, monotonicity is satisfied by construction; the control group cannot see ads regardless of assignment, and the ghost ads system ensures one-sided non-compliance.
+
+    \item Random assignment appears satisfied by the cookie-based randomization. We could verify this by checking for balance on observable pre-treatment characteristics if such data were available. Without additional covariates in the dataset, we rely on the experimental design description. 
+
+    The most concerning potential violation is interference through word-of-mouth or shared households, which cause us to underestimate the true ad effect. However, in a large-scale digital advertising context with 50,000 users, spillover effects are likely diluted across many social networks, suggesting the bias is probably modest. The heterogeneity in treatment intensity (varying impression) is documented in the CATE analysis rather than being a hidden bias 
+\end{enumerate}
+
+\newpage
+\section{Task 2: Just Buy This, I Don't Know What Else to Tell You}
+
+\subsection{Introduction \& Research Question}
+The relationship between younger consumers and advertising is undergoing a fundamental shift. Adoption of ad-blocking software among young internet users has grown at approximately 40\% year-over-year in the US in 2015 (\cite{sterling2015adblocking}), and eye-tracking research on digital natives reveals that intrusive advertising formats (pop-ups, non-skippable video ads, and content-reorganizing banners) are perceived as deeply annoying and are actively avoided (\cite{fi16040125}). This is not merely a technological trend; it reflects a generational change in how advertising credibility is evaluated. \textcite{DJAFAROVA20171} found that young consumers perceive non-traditional content creators, like bloggers, and YouTubers, as significantly more credible and persuasive than traditional celebrity endorsers or conventional brand advertisements. More recent work confirms that influencer authenticity has a strong positive effect on Gen~Z trust and purchase intentions (\cite{gohil2025influencer}), and that Gen~Z consumers view authentic influencers as ``highly educated friends'' from whom they seek advice, rather than as paid advertisers (\cite{singer2023influencer}).
+
+Given this shift, brands are investing heavily in influencer marketing. However, the question of \textit{what style} of influencer content is most effective remains open. On one end of the spectrum, brands commission polished, high-production influencer partnerships with scripted copy and studio-quality visuals. On the other end, a growing number of creators adopt a raw, casual aesthetic: filming on their phone, speaking without a script, and using humor that borders on self-deprecating (e.g., ``honestly just buy this, I don't know what else to tell you''). Observational data might suggest that authentic-looking content generates higher engagement, but such observations are heavily confounded: platforms' targeting algorithms amplify content to audiences predicted to engage with it, and users self-select into following creators whose style they prefer. As \textcite{braun2025abtesting} demonstrate, even randomized A/B tests conducted through platform-provided tools suffer from \textit{divergent delivery}, where the algorithm serves different ad variants to systematically different user populations, making it impossible to attribute differences to content alone.
+
+This report proposes an experiment to test the following causal question: \textbf{does casual, authentic-style influencer content cause higher purchase intent than professionally produced influencer content?} The focal treatment effect concerns the \textit{perceived authenticity} of the content style, not the presence or absence of influencer marketing itself. The remainder of this report specifies the independent and dependent variables, discusses the operationalization of the treatment and counterfactual, evaluates alternative experimental designs, and analyzes threats to internal and external validity.
+
+\subsection{Variables and Operationalization}
+\subsubsection{Independent Variable}
+The theoretical independent variable is content authenticity style; the degree to which influencer content appears spontaneous, unpolished, and genuine versus professionally produced and scripted. This construct is operationalized through two experimental conditions:
+
+The treatment condition presents casual, authentic influencer content. Concretely, this is a short video (approximately 30--60 seconds) filmed on a smartphone in a natural setting (e.g., the influencer's home), with informal language, minimal editing, and a conversational tone. The influencer speaks directly to the camera without a visible script, and the product endorsement is embedded in casual commentary.
+
+The control condition presents professional, polished influencer content. This is a video of identical length featuring \textit{the same influencer} promoting \textit{the same product}, but filmed with studio lighting, high-quality audio, scripted copy, and polished editing resembling a traditional sponsored post.
+\newpage 
+\subsubsection{Counterfactual and the Compound Treatment Problem}
+The choice to use the same influencer and the same product across both conditions is a deliberate design decision to avoid the \textit{compound treatment problem}. As discussed in the course, a compound treatment arises when the experimental manipulation unintentionally varies multiple factors simultaneously. If we compared influencer~A (casual) with influencer~B (professional), any observed difference could be attributed to the person, their audience, their delivery style, or the content format, and not solely to authenticity. By holding the influencer and product constant, the manipulation isolates the content style dimension as cleanly as possible.
+
+The counterfactual is an \textit{explicit alternative} rather than the absence of content. This is appropriate because the research question concerns the \textit{relative} effectiveness of two content strategies, not whether influencer content works at all. A ``no content'' control group would answer a different question and would not provide actionable guidance for the business decision at hand.
+\subsubsection{Dependent Variable}
+The primary dependent variable is purchase intent, which captures the consumer's likelihood of purchasing the promoted product after viewing the content. In the proposed field setting, this is operationalized through behavioral measures recorded via a unique tracked link embedded in each post. Each experimental condition (casual and professional) contains a distinct UTM-tagged or affiliate URL pointing to the product page, allowing the researcher to attribute downstream behavior (click-through, add-to-cart, and conversion) to the specific content variant that generated it. These revealed-preference measures avoid the well-documented gap between stated intentions and actual purchasing behavior, providing a direct read on how content style influences real consumer decisions. Were the experiment instead conducted in a lab, the dependent variable would be measured using a validated 7-point Likert scale (e.g., ``How likely are you to purchase this product?'') supplemented by a hypothetical willingness-to-pay measure. Although they are useful proxies, they are inherently less actionable than observed behavior.
+
+\subsubsection{Challenges in Manipulation and Measurement}
+
+Two key challenges deserve attention. First, regarding manipulation effectiveness: casual content may vary not only perceived authenticity but also perceived humor, effort, or production quality. In a lab setting, this would be verified through explicit manipulation checks where participants rate perceived authenticity, humor, and production quality. In the proposed field setting, however, such self-report measures are unavailable. The researcher cannot directly confirm that authenticity is the primary dimension being varied, which means the field experiment tests the \textit{bundle} of features that distinguish casual from professional content rather than authenticity in isolation. This is a genuine limitation of the field design and one of the strongest arguments for a complementary lab study to probe the underlying mechanism.
+
+Second, regarding measurement of the DV: although the tracked link provides a clean attribution path from content to behavior, the resulting measures are noisy. A single click does not imply genuine purchase intent, and conversion rates in influencer campaigns are typically low, requiring large sample sizes to detect modest effects. The link also introduces a minor demand artifact: users who notice the tracked URL may behave differently than they would with an organic link, though this concern is mitigated by the fact that UTM parameters and affiliate links are standard practice in influencer content and are unlikely to be noticeable to most users. Furthermore, behavioral data alone cannot reveal \textit{why} participants acted as they did. The mechanism remains a black box. A lab experiment lets researchers measure not just outcomes but also things that might explain them, like perceived authenticity or trust, but this extra detail comes at the cost of realism. A field study, on the other hand, sacrifices some of that detail but relies on the underlying theory to help make sense of the results.
+\newpage 
+\subsection{Experimental Design Strategy}
+
+\subsubsection{Between-Subjects Design}
+
+The proposed experiment uses a between-subjects design, in which each participant is randomly assigned to view either the casual or the professional video, but not both. This choice is driven by the nature of the treatment. A within-subjects design, where the same participant views both videos, would be inappropriate for two reasons. First, it would introduce severe \textit{carryover effects}: once a participant has seen the casual version, their reaction to the professional version (or vice versa) would be contaminated by the comparison. Second, it would create strong \textit{demand effects}, as participants would almost certainly infer that the study is comparing the two styles and adjust their responses accordingly. Both threats are discussed extensively in this course as primary concerns for within-subjects designs.
+
+Between-subjects designs eliminate these concerns at the cost of requiring more participants (since each participant provides data for only one condition) and introducing the possibility of pre-existing differences between groups. However, the latter concern is addressed through random assignment, which ensures that (in theory) the two groups are equivalent on all observed and unobserved characteristics. To further strengthen balance on key demographics (age, gender, social media usage frequency), \textit{stratified random assignment} can be employed, randomizing within homogeneous subgroups rather than across the full sample. This is particularly important if we wish to analyze heterogeneous treatment effects across demographic subgroups.
+
+\subsubsection{Lab vs.\ Field Experiment}
+
+\textbf{The Case for a Lab Experiment}
+
+An online lab experiment would offer maximum control over the experimental setting. Each participant could be randomly assigned to view exactly one video within a survey interface, eliminating any interference from platform algorithms. The researcher could include manipulation checks (e.g., ``How authentic did this content feel?'') and mediator scales (perceived trust, perceived effort) alongside the outcome measures. This diagnostic depth is the core advantage of a lab setting: it allows the researcher not only to estimate the treatment effect but also to probe the mechanism through which it operates. The Hawthorne effect is reduced in an online lab relative to a physical lab, since participants complete the task from their own environment.
+
+However, the lab setting carries substantial limitations for this particular research question. Watching an influencer video inside a survey is fundamentally different from encountering it in a social media feed. The social context (likes, comments, share counts, algorithmic placement among other content) is entirely absent, and these cues may moderate the authenticity effect in practice. Casual content may derive part of its appeal from the \textit{contrast} with polished content in the same feed, an effect that disappears in isolation. Furthermore, the dependent variable in a lab must rely on stated purchase intent rather than actual behavior, introducing the well-documented intention--behavior gap. For a research question whose ultimate business relevance lies in real purchasing outcomes, this is a significant sacrifice.
+
+\textbf{The Case for a Field Experiment}
+
+A field experiment, for instance, running an A/B test through Instagram or TikTok's advertising tools, would score highly on the four key features of field experiments identified in this course: real-world context, authenticity of treatment, representativeness of participants, and relevant outcome measures. Participants would encounter the content organically in their social media feed, respond with real behavior (clicks, purchases), and the sample would reflect the actual target population. The ecological validity of such a design would be high, and the dependent variable could be operationalized as actual click-through, add-to-cart, or conversion. These are behavioral measures that directly answer the business question.
+
+The primary internal validity threat of a field experiment is \textit{divergent delivery}. As \textcite{braun2025abtesting} demonstrate, platform A/B testing tools optimize ad delivery based on predicted user-content relevance, meaning that the casual video and the professional video may be served to systematically different user populations. \textcite{gordon2019comparison} reinforce this concern by showing that even with rich individual-level data, selection effects in digital advertising cannot be adequately controlled for after the fact. Additionally, a field experiment does not easily permit manipulation checks, so the researcher cannot directly verify that the treatment operates through perceived authenticity rather than some other channel. Non-compliance is also a concern: not all users assigned to see an ad will actually be exposed, creating one-sided non-compliance that shifts the estimand from ATE to ITT or LATE.
+
+\textbf{Recommended Design: Field Experiment with Mitigation Strategies}
+
+Despite the internal validity threats, the proposed design is a field experiment conducted through a social media platform's advertising infrastructure. The core justification is that the research question is innately about how consumers respond to influencer content \textit{in its natural environment}. Content style effects are likely moderated by the social media context itself; the feed, the social proof signals, the fleeting attention span of scrolling users\footnote{Colloquially referred to as ``brain rot'' by\\Gen~Z users themselves\\named Oxford's Word of the Year for 2024.}, and stripping away that context in a lab would risk studying a phenomenon that does not transfer to the real world. As \textcite{gordon2019comparison} note, the value of field experiments in digital advertising lies precisely in their ability to measure effects on real behavior in real markets.
+
+To address the divergent delivery problem, several mitigation strategies can be employed. First, the brand can configure the platform's ad manager to use \textit{identical audience targeting} for both conditions, restricting delivery to a pre-defined demographic segment (e.g., Instagram users aged 18--30 in a specific geographic region) and disabling algorithmic optimization of creative delivery where the platform allows it. Second, each content variant includes a unique tracked link (UTM-tagged or affiliate URL) to the product page, enabling clean attribution of click-through, add-to-cart, and conversion behavior to the specific condition that generated it. Third, the analysis should report both the intent-to-treat (ITT) estimate and, where exposure data is available, the local average treatment effect (LATE) to account for non-compliance. Fourth, demographic and behavioral covariates collected by the platform (age, gender, usage frequency) can be included in the regression to improve precision and check for balance across conditions. While these measures cannot fully eliminate the divergent delivery concern, they substantially reduce it and make the remaining threat transparent and quantifiable.
+
+The sacrifice relative to a lab experiment is the inability to include manipulation checks or mediator scales. The researcher cannot directly verify that any observed difference operates through perceived authenticity. This limitation should motivate a complementary lab study as a follow-up to probe the mechanism once the field experiment establishes whether a practically meaningful effect exists in the real market.
+
+\subsection{Validity Analysis}
+
+\subsubsection{Threats to Internal Validity}
+
+The most serious internal validity threat is that the platform's algorithm may serve the two ad variants to systematically different audiences, even when targeting parameters are held constant. As \textcite{braun2025abtesting} document, this \textit{divergent delivery} means that any observed difference in outcomes could reflect audience composition rather than content style. The mitigation strategies discussed above, restricting targeting, disabling creative optimization where possible, and checking covariate balance post hoc reduce, but do not fully eliminate this threat. Transparency about residual confounding is essential when interpreting the results.
+
+In a field experiment, not all users assigned to see an ad will actually view it. Some will scroll past before the video loads, others may be served the ad but not attend to it. This one-sided non-compliance means the experiment estimates an intent-to-treat (ITT) effect rather than the average treatment effect on the treated (ATT). Where the platform provides impression-level data, an instrumental-variables approach can recover the local average treatment effect (LATE), but the ITT remains the most policy-relevant estimand for managerial decision-making, since it reflects what happens when the brand \textit{deploys} a given content strategy.
+
+Despite using the same influencer and product across conditions, the casual and professional videos inevitably differ on multiple dimensions, not only authenticity but also humor, perceived effort, visual aesthetics, and potentially video pacing. This means the treatment is not a clean manipulation of a single construct. Unlike in a lab setting, the field experiment does not allow manipulation checks to diagnose which dimensions are driving the effect. This limitation is inherent to the field design and should be acknowledged: the experiment tests the \textit{bundle} of features that constitute casual versus professional content, not authenticity in isolation. Including platform-provided demographic and behavioral covariates in the analysis can partially account for heterogeneous responses, but it cannot tell us \textit{why} the treatment works.
+
+If the same user follows the influencer organically and encounters both the casual and professional content (e.g., through the influencer's own feed alongside the paid ad), treatment contamination may occur. This risk can be reduced by running the two ad variants in non-overlapping time windows or geographic regions, though this introduces potential confounds from temporal or regional differences. Alternatively, the brand can coordinate with the influencer to ensure that only the paid ads are posted during the experimental window.
+
+Behavioral outcomes such as conversion are binary and typically have low base rates in influencer campaigns, meaning the experiment requires a large sample to detect modest effects. A formal power analysis based on historical conversion rates for similar campaigns should be conducted prior to launch. Under-powering the experiment risks a Type~II error that will incorrectly state that content style does not matter.
+
+\subsubsection{Threats to External Validity}
+
+The norms and expectations of content differ across platforms. Casual, ``off-the-cuff'' content is native to TikTok but may feel out of place on LinkedIn or even Instagram. The field experiment is conducted on a single platform, and results should not be generalized to other platforms without replication. However, running the experiment \textit{on} a platform, rather than abstracting away the platform context in a lab, ensures that the estimated effect is valid for at least one real market environment.
+
+The effect of content style likely depends on the product category. Casual, humorous content may be highly effective for ``enjoyment-driven'', low-involvement products (e.g., snacks, fashion accessories) but less so for utilitarian, high-involvement products (e.g., financial services, electronics). The proposed experiment tests a single product category, and the results should not be generalized beyond it without replication.
+
+The effect may depend on the particular influencer's persona. An influencer whose brand is already casual may show a smaller treatment effect than one whose audience expects polished content. While using a single influencer controls for person-level confounds, it limits generalizability. Future replications with multiple influencers would strengthen external validity.
+
+
+Social media trends evolve rapidly. What reads as ``authentic'' today may feel forced or faux\footnote{Like Wendy's replies on $\mathbb{X}$ (formerly Twitter)} in six months as the casual aesthetic becomes mainstream. The field experiment captures a snapshot of consumer preferences at a particular moment, and its conclusions may have a limited shelf life.
+
+\subsection{Discussion and Conclusion}
+
+This report has proposed an experimental design to test whether casual, authentic-style influencer content causes higher purchase intent than professionally produced influencer content. The focal treatment effect concerns perceived authenticity of the content style, operationalized through two video conditions featuring the same influencer and the same product but differing in production quality, tone, and delivery.
+
+The recommended design is a between-subjects field experiment conducted through a social media platform's advertising infrastructure. This choice prioritizes external validity and behavioral realism; a trade-off that is justified by the nature of the research question. Content style effects are deeply embedded in the social media context: the feed environment, the social proof cues, and the fleeting attention of scrolling users all shape how authenticity is perceived and whether it translates into action. A lab experiment, while offering superior control and the ability to probe mechanisms through manipulation checks, would strip away precisely the contextual factors that make the question business-relevant in the first place.
+
+The field design is not without limitations. The divergent delivery problem documented by \textcite{braun2025abtesting} means that platform algorithms may confound the treatment comparison by serving the two ad variants to systematically different audiences. \textcite{gordon2019comparison} further demonstrate that observational corrections for such selection effects are unreliable. The mitigation strategies proposed like restricting targeting parameters, disabling creative optimization, and checking covariate balance, reduce but do not eliminate this threat. Furthermore, the compound treatment concern remains: without manipulation checks, the experiment cannot isolate \textit{perceived authenticity} from the bundle of features that distinguish casual from professional content. These limitations should motivate a complementary lab study as a follow-up to probe the mechanism once the field experiment establishes whether a practically meaningful effect exists in the real market.
+
+From a practical standpoint, the answer to this research question has direct implications for how brands allocate their influencer marketing budgets. If casual content proves more effective at driving real conversions, the irony is notable: the less brands invest in production, the more they may earn in return \dots at least among the younger consumers who increasingly dictate market trends.
+
+
+\newpage
+\section{Task 3: Title Here}
+
+\subsection{Subtask 3a}
+Your content here...
+
+\newpage
+\section{Task 4: Title Here}
+
+\subsection{Subtask 4a}
+Your content here...
+
+% ══════════════════════════════════════
+%   REFERENCES
+% ══════════════════════════════════════
+
+\newpage
+\printbibliography[title={References}]
+
+% ══════════════════════════════════════
+%   APPENDIX
+% ══════════════════════════════════════
+
+\newpage
+\appendix
+\section{Code}
+\subsection{Task 1 Code}
+\label{app:task_one}
+\begin{lstlisting}
+import pandas as pd
+import numpy as np 
+import statsmodels.api as sm
+import matplotlib.pyplot as plt 
+from linearmodels.iv import IV2SLS
+    
+pd.set_option('display.max_columns', None)
+df = pd.read_csv('CaseData2026.csv', delimiter=';')
+
+treatment_group = df[df['test'] == 1]
+control_group = df[df['test'] == 0]
+
+treatment_no_exposure = treatment_group[treatment_group['impressions'] == 0]
+treatment_with_exposure = treatment_group[treatment_group['impressions'] > 0]
+
+compliance_rate_treatment = len(treatment_with_exposure) / len(treatment_group)
+non_compliance_rate = len(treatment_no_exposure) / len(treatment_group)
+
+print(f"treatment group size: {len(treatment_group)}")
+print(f"treatment group with impressions > 0 (compliers): {len(treatment_with_exposure)}")
+print(f"treatment group with impressions = 0 (non-compliers): {len(treatment_no_exposure)}")
+print(f"compliance rate in treatment: {compliance_rate_treatment:.4f} ({compliance_rate_treatment*100:.2f}%)")
+print(f"non-compliance rate: {non_compliance_rate:.4f} ({non_compliance_rate*100:.2f}%)")
+
+
+control_no_exposure = control_group[control_group['impressions'] == 0]
+print(f'control group with 0 ghost impressions: {len(control_no_exposure) / len(control_group)}')
+\end{lstlisting}
+\begin{verbatim}
+    > treatment group size: 25072
+    > treatment group with impressions > 0 (compliers): 19694
+    > treatment group with impressions = 0 (non-compliers): 5378
+    > compliance rate in treatment: 0.7855 (78.55%)
+    > non-compliance rate: 0.2145 (21.45%)
+    > control group with 0 ghost impressions: 0.2159017971758665
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+#bin var treatment indicator (actually saw ads)
+df['saw_ads'] = ((df['test'] == 1) & (df['impressions'] > 0)).astype(int)
+
+#ITT
+itt_control = df[df['test'] == 0]['purchase'].mean()
+itt_treatment = df[df['test'] == 1]['purchase'].mean()
+itt_effect = itt_treatment - itt_control
+
+print(f'control group conversion rate: {itt_control}')
+print(f'treatment group conversion rate: {itt_treatment}\nITT effect: {itt_effect}')
+
+#ITT with regression (for st err)
+X_itt = sm.add_constant(df['test'])
+model_itt = sm.OLS(df['purchase'], X_itt).fit(cov_type='HC1') #robust SEs 
+print(f'regression:\n{model_itt.summary().tables[1]}')
+\end{lstlisting}
+\begin{verbatim}
+> control group conversion rate: 0.024029204107830552
+> treatment group conversion rate: 0.028677409061901724
+> ITT effect: 0.004648204954071172
+> regression:
+> ==============================================================================
+>                  coef    std err          z      P>|z|      [0.025      0.975]
+> ------------------------------------------------------------------------------
+> const          0.0240      0.001     24.773      0.000       0.022       0.026
+> test           0.0046      0.001      3.245      0.001       0.002       0.007
+> ==============================================================================
+\end{verbatim}
+\begin{lstlisting}
+#LATE via IV
+#instrument: test, endo: saw_ads, outcome: purchase 
+
+df_iv = df[['purchase', 'saw_ads', 'test']].copy()
+df_iv['const'] = 1 
+
+iv_model = IV2SLS(
+    dependent=df_iv['purchase'],
+    exog=df_iv['const'],
+    endog=df_iv['saw_ads'],
+    instruments=df_iv['test'],
+).fit(cov_type='robust')
+
+iv_model.summary
+\end{lstlisting}
+\begin{verbatim}
+> IV-2SLS Estimation Summary
+> Dep. Variable:	purchase	R-squared:	0.0015
+> Estimator:	IV-2SLS	Adj. R-squared:	0.0015
+> No. Observations:	50000	F-statistic:	10.544
+> Date:	Wed, Feb 04 2026	P-value (F-stat)	0.0012
+> Time:	17:58:29	Distribution:	chi2(1)
+> Cov. Estimator:	robust		
+> Parameter Estimates
+> Parameter	Std. Err.	T-stat	P-value	Lower CI	Upper CI
+> const	0.0240	0.0010	24.774	0.0000	0.0221	0.0259
+> saw_ads	0.0059	0.0018	3.2471	0.0012	0.0023	0.0095
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+#manual LATE calc: LATE = ITT / compliance rate 
+compliance_diff = df[df['test'] == 1]['saw_ads'].mean() - df[df['test'] == 0]['saw_ads'].mean()
+late = itt_effect / compliance_diff 
+
+print(f'itt effect: {itt_effect}\ncompliance diff: {compliance_diff}\nLATE: {late}')
+\end{lstlisting}
+\begin{verbatim}
+> itt effect: 0.004648204954071172
+> compliance diff: 0.7854977664326739
+> LATE: 0.005917527907406948
+
+\end{verbatim}
+\begin{lstlisting}
+#create impression bins for strat analysis
+df['imp_bins'] = pd.cut(df['impressions'], bins=[-1, 0, 1, 2, 3, 5, 10, 20], labels=['0', '1', '2', '3', '4-5', '6-10', '11+'])
+
+#calc ITT bu imp bin
+cate_by_bin = df.groupby(['imp_bins', 'test'])['purchase'].agg(['mean', 'count', 'std']).unstack()
+cate_by_bin.columns = ['_'.join(map(str, col)) for col in cate_by_bin.columns] #convert to str before joining
+cate_by_bin['ITT'] = cate_by_bin['mean_1'] - cate_by_bin['mean_0']
+cate_by_bin['n_total'] = cate_by_bin['count_0'] + cate_by_bin['count_1']
+
+cate_by_bin[['mean_0', 'mean_1', 'ITT', 'n_total']].round(4)
+\end{lstlisting}
+\begin{verbatim}
+>     mean_0	mean_1	ITT	n_total
+> imp_bins				
+> 0	0.0000	0.0000	0.0000	10760
+> 1	0.0000	0.0000	0.0000	2932
+> 2	0.0000	0.0000	0.0000	5860
+> 3	0.0000	0.0000	0.0000	7830
+> 4-5	0.0000	0.0001	0.0001	14039
+> 6-10	0.1302	0.1564	0.0262	8478
+> 11+	1.0000	1.0000	0.0000	101
+
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+#regression with interaction to test heterogeneity
+#model: purchase ~ test + impressions + test*impressions
+
+df['test_x_imp'] = df['test'] * df['impressions']
+X_interact = sm.add_constant(df[['test', 'impressions', 'test_x_imp']])
+model_interact = sm.OLS(df['purchase'], X_interact).fit(cov_type='HC1')
+
+print(model_interact.summary().tables[1])
+
+print(f"- base effect of treatment (at 0 impressions): {model_interact.params['test']}")
+print(f"- additional effect per impression: {model_interact.params['test_x_imp']}")
+print(f"- interaction significant? p = {model_interact.pvalues['test_x_imp']}")
+\end{lstlisting}
+\begin{verbatim}
+> ===============================================================================
+>                   coef    std err          z      P>|z|      [0.025      0.975]
+> -------------------------------------------------------------------------------
+> const          -0.0533      0.002    -27.571      0.000      -0.057      -0.050
+> test           -0.0067      0.003     -2.420      0.016      -0.012      -0.001
+> impressions     0.0242      0.001     28.343      0.000       0.023       0.026
+> test_x_imp      0.0035      0.001      2.866      0.004       0.001       0.006
+> ===============================================================================
+> - base effect of treatment (at 0 impressions): -0.0066651281558449925
+> - additional effect per impression: 0.003506070910565647
+> - interaction significant? p = 0.004154874372134771
+
+\end{verbatim}
+\begin{lstlisting}
+contribution_per_purchase = 200
+cost_per_impression = 100 / 1_000
+
+late_effect = 0.0059 
+itt_effect = 0.00465
+
+avg_impressions_treatment = df[df['test'] == 1]['impressions'].mean()
+avg_impressions_control = df[df['test'] == 0]['impressions'].mean()  # ghost impressions
+avg_impressions_compliers = df[(df['test'] == 1) & (df['impressions'] > 0)]['impressions'].mean()
+
+print(f"contribution per purchase: {contribution_per_purchase} NOK")
+print(f"cost per impression: {cost_per_impression} NOK")
+print(f"average impressions (treatment): {avg_impressions_treatment:.2f}")
+print(f"average impressions (compliers only): {avg_impressions_compliers:.2f}")
+\end{lstlisting}
+\begin{verbatim}
+> contribution per purchase: 200 NOK
+> cost per impression: 0.1 NOK
+> average impressions (treatment): 3.20
+> average impressions (compliers only): 4.07
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+# method 1: per-user analysis (ITT_based, conservative)
+
+revenue_lift_per_user = itt_effect * contribution_per_purchase
+cost_per_user = avg_impressions_treatment * cost_per_impression
+net_contribution_per_user_itt = revenue_lift_per_user - cost_per_user
+
+print(f'revenue lift per user: {revenue_lift_per_user}')
+print(f'ad cost per user: {cost_per_user}')
+print(f'net contribution per user: {net_contribution_per_user_itt}')
+print(f'ROI: {(revenue_lift_per_user / cost_per_user - 1) * 100}')
+\end{lstlisting}
+\begin{verbatim}
+> revenue lift per user: 0.9299999999999999
+> ad cost per user: 0.32007418634333124
+> net contribution per user: 0.6099258136566688
+> ROI: 190.5576393475308
+\end{verbatim}
+\begin{lstlisting}
+# method 2: per-complier analysis (LATE-based)
+
+revenue_lift_per_complier = late_effect * contribution_per_purchase
+cost_per_complier = avg_impressions_compliers * cost_per_impression
+net_contribution_per_complier = revenue_lift_per_complier - cost_per_complier
+
+print(f"revenue lift per complier: {revenue_lift_per_complier} NOK")
+print(f"ad cost per complier: {cost_per_complier} NOK")
+print(f"net contribution per complier: {net_contribution_per_complier} NOK")
+print(f"ROI: {(revenue_lift_per_complier / cost_per_complier - 1) * 100}%")
+\end{lstlisting}
+\begin{verbatim}
+> revenue lift per complier: 1.18 NOK
+> ad cost per complier: 0.4074794353610237 NOK
+> net contribution per complier: 0.7725205646389762 NOK
+> ROI: 189.58516617029494%
+\end{verbatim}
+\begin{lstlisting}
+# campaign-level calc
+
+n_treatment = len(df[df['test'] == 1])
+total_impressions_treatment = df[df['test'] == 1]['impressions'].sum()
+
+total_revenue_lift = n_treatment * itt_effect * contribution_per_purchase
+total_ad_cost = total_impressions_treatment * cost_per_impression
+total_net_contribution = total_revenue_lift - total_ad_cost
+
+print(f"users in treatment: {n_treatment}")
+print(f"total impressions served: {total_impressions_treatment}")
+print(f"expected additional conversions: {n_treatment * itt_effect}")
+print(f"total revenue lift: {total_revenue_lift} NOK")
+print(f"total ad cost: {total_ad_cost} NOK")
+print(f"net contribution: {total_net_contribution} NOK")
+\end{lstlisting}
+\begin{verbatim}
+> users in treatment: 25072
+> total impressions served: 80249
+> expected additional conversions: 116.58479999999999
+> total revenue lift: 23316.96 NOK
+> total ad cost: 8024.900000000001 NOK
+> net contribution: 15292.059999999998 NOK
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+# sensitivity analysis
+
+#break-even contribution per purchase
+breakeven_contribution = cost_per_user / itt_effect
+print(f"break-even contribution per purchase:")
+print(f"current: {contribution_per_purchase} NOK")
+print(f"break-even: {breakeven_contribution} NOK")
+print(f"margin of safety: {(contribution_per_purchase - breakeven_contribution) / contribution_per_purchase * 100}%")
+
+#break-even ad cost per 1000 impressions
+breakeven_cpm = (itt_effect * contribution_per_purchase) / avg_impressions_treatment * 1000
+print(f"\nbreak-even CPM (cost per 1000 impressions):")
+print(f"current: 100 NOK")
+print(f"break-even: {breakeven_cpm} NOK")
+print(f"margin of safety: {(breakeven_cpm - 100) / breakeven_cpm * 100}%")
+
+#break-even treatment effect
+breakeven_effect = cost_per_user / contribution_per_purchase
+print(f"\nbreak-even treatment effect (ITT):")
+print(f"current: {itt_effect*100}%")
+print(f"break-even: {breakeven_effect*100}%")
+print(f"margin of safety: {(itt_effect - breakeven_effect) / itt_effect * 100}%")
+\end{lstlisting}
+\begin{verbatim}
+> break-even contribution per purchase:
+> current: 200 NOK
+> break-even: 68.83315835340457 NOK
+> margin of safety: 65.58342082329771%
+> 
+> break-even CPM (cost per 1000 impressions):
+> current: 100 NOK
+> break-even: 290.55763934753077 NOK
+> margin of safety: 65.58342082329771%
+> 
+> break-even treatment effect (ITT):
+> current: 0.46499999999999997%
+> break-even: 0.16003709317166562%
+> margin of safety: 65.58342082329771%
+\end{verbatim}
+\newpage 
+\begin{lstlisting}
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+#sensitivity to contribution per purchase
+contributions = np.linspace(50, 400, 100)
+net_by_contrib = [itt_effect * c - cost_per_user for c in contributions]
+axes[0].plot(contributions, net_by_contrib, 'b-', linewidth=2)
+axes[0].axhline(y=0, color='red', linestyle='--', alpha=0.7)
+axes[0].axvline(x=contribution_per_purchase, color='green', linestyle='--', alpha=0.7, label='Current (200)')
+axes[0].axvline(x=breakeven_contribution, color='red', linestyle=':', alpha=0.7, label=f'Break-even ({breakeven_contribution:.0f})')
+axes[0].set_xlabel('contribution per purchase (NOK)')
+axes[0].set_ylabel('net contribution per user (NOK)')
+axes[0].set_title('sensitivity to contribution')
+axes[0].legend()
+axes[0].fill_between(contributions, net_by_contrib, 0, where=[n > 0 for n in net_by_contrib], alpha=0.3, color='green')
+axes[0].fill_between(contributions, net_by_contrib, 0, where=[n < 0 for n in net_by_contrib], alpha=0.3, color='red')
+
+#sensitivity to CPM
+cpms = np.linspace(0, 500, 100)
+net_by_cpm = [itt_effect * contribution_per_purchase - avg_impressions_treatment * (c/1000) for c in cpms]
+axes[1].plot(cpms, net_by_cpm, 'b-', linewidth=2)
+axes[1].axhline(y=0, color='red', linestyle='--', alpha=0.7)
+axes[1].axvline(x=100, color='green', linestyle='--', alpha=0.7, label='Current (100)')
+axes[1].axvline(x=breakeven_cpm, color='red', linestyle=':', alpha=0.7, label=f'Break-even ({breakeven_cpm:.0f})')
+axes[1].set_xlabel('CPM (NOK per 1000 impressions)')
+axes[1].set_ylabel('net contribution per user (NOK)')
+axes[1].set_title('sensitivity to ad cost')
+axes[1].legend()
+axes[1].fill_between(cpms, net_by_cpm, 0, where=[n > 0 for n in net_by_cpm], alpha=0.3, color='green')
+axes[1].fill_between(cpms, net_by_cpm, 0, where=[n < 0 for n in net_by_cpm], alpha=0.3, color='red')
+
+#sensitivity to treatment effect
+effects = np.linspace(0, 0.02, 100)
+net_by_effect = [e * contribution_per_purchase - cost_per_user for e in effects]
+axes[2].plot(effects * 100, net_by_effect, 'b-', linewidth=2)
+axes[2].axhline(y=0, color='red', linestyle='--', alpha=0.7)
+axes[2].axvline(x=itt_effect*100, color='green', linestyle='--', alpha=0.7, label=f'Current ({itt_effect*100:.2f}%)')
+axes[2].axvline(x=breakeven_effect*100, color='red', linestyle=':', alpha=0.7, label=f'Break-even ({breakeven_effect*100:.2f}%)')
+axes[2].set_xlabel('treatment effect ITT (%)')
+axes[2].set_ylabel('net contribution per user (NOK)')
+axes[2].set_title('sensitivity to ad effectiveness')
+axes[2].legend()
+axes[2].fill_between(effects * 100, net_by_effect, 0, where=[n > 0 for n in net_by_effect], alpha=0.3, color='green')
+axes[2].fill_between(effects * 100, net_by_effect, 0, where=[n < 0 for n in net_by_effect], alpha=0.3, color='red')
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+\subsection{Task 2 Code}
+\begin{lstlisting}
+# Your Task 2 code here
+\end{lstlisting}
+
+\subsection{Task 3 Code}
+\begin{lstlisting}
+# Your Task 3 code here
+\end{lstlisting}
+
+\subsection{Task 4 Code}
+\begin{lstlisting}
+# Your Task 4 code here
+\end{lstlisting}
+
+% Or if you prefer to import files directly:
+% \lstinputlisting[caption={Task 1 Code}]{code/task1.R}
+
+\end{document}

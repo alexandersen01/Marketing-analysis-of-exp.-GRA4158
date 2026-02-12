@@ -1,0 +1,29 @@
+\contentsline {section}{\numberline {1}Task 1: The Gen-Z Intern}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Non-Compliance Detective}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Treatment effect estimates}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Impressive Impressions}{5}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Is showing ads profitable?}{7}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Discussion of methods:}{8}{subsection.1.5}%
+\contentsline {section}{\numberline {2}Task 2: Just Buy This, I Don't Know What Else to Tell You}{10}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Introduction \& Research Question}{10}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Variables and Operationalization}{10}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Independent Variable}{10}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Counterfactual and the Compound Treatment Problem}{11}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Dependent Variable}{11}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Challenges in Manipulation and Measurement}{11}{subsubsection.2.2.4}%
+\contentsline {subsection}{\numberline {2.3}Experimental Design Strategy}{12}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Between-Subjects Design}{12}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Lab vs.\ Field Experiment}{12}{subsubsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.4}Validity Analysis}{13}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Threats to Internal Validity}{13}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Threats to External Validity}{14}{subsubsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.5}Discussion and Conclusion}{14}{subsection.2.5}%
+\contentsline {section}{\numberline {3}Task 3: Title Here}{16}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Subtask 3a}{16}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Task 4: Title Here}{17}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Subtask 4a}{17}{subsection.4.1}%
+\contentsline {section}{\numberline {A}Code}{19}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Task 1 Code}{19}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Task 2 Code}{26}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Task 3 Code}{26}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Task 4 Code}{26}{subsection.A.4}%
