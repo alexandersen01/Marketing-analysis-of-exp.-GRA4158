@@ -1,0 +1,25 @@
+\contentsline {section}{\numberline {1}Recap: conditional independence / covariate adjustment}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Non-random assignment -- quasi-experimental methods}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Recap: non-random assignment}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Core idea of matching}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}A simplified (ideal) example}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Treatment effect estimates}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Approximate matching}{4}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Bias of approximate matching}{4}{subsubsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.4}Important steps in implementing matching methods}{4}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Decide on which covariates to include}{5}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Decide on the distance measure}{5}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}Implementing the matching method}{6}{subsubsection.2.4.3}%
+\contentsline {subsubsection}{\numberline {2.4.4}Assessing the quality of matching}{6}{subsubsection.2.4.4}%
+\contentsline {subsubsection}{\numberline {2.4.5}Assessing the quality of the matched samples}{7}{subsubsection.2.4.5}%
+\contentsline {subsection}{\numberline {2.5}Decide on the distance measure -- alternatives}{7}{subsection.2.5}%
+\contentsline {section}{\numberline {3}Propensity scores}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The core idea}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Balancing properly}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}How to estimate the propensity score?}{9}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Weighting}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Inverse propensity weighting (IPW)}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Propensity score weighting -- numerical examples}{11}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Issues with propensity score weighting}{11}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Doubly robust estimators (AIPW)}{12}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Characteristics of the AIPW model}{12}{subsection.4.5}%

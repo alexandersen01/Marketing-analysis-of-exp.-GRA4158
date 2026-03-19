@@ -1,0 +1,344 @@
+\documentclass[10pt]{article}
+
+\usepackage{parskip}
+\usepackage[margin=1in]{geometry} 
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{amsmath,amsthm,amssymb, graphicx, multicol, array}
+\usepackage{enumitem}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{href-ul}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+\begin{document}
+ 
+\title{ML meets causal inference}
+\author{Jakob Sverre Alexandersen\\
+GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments\\
+Lecture 10}
+\maketitle
+
+\tableofcontents
+\newpage
+\section{Augmented Inverse Propensity Weighting (AIPW)}
+\subsection{Brief recap of IPW}
+\begin{itemize}
+    \item Under the previous assumption $\{Y_i(1) - Y_i(0)\}\bot T_i|X_i $ implying $\{Y_i(1) - Y_i(0)\}\bot T_i|p(X_i) $
+    \item The ATE can also be consistently estimated as 
+    \begin{gather*}
+        \text{ATE} = \mathbb{E}[Y_i(1) - Y_i(0)] = \mathbb{E}\left[\frac{T_i}{p(X_i)}Y_i - \frac{(1 - T_i)}{1 - p(X_i)}\right] = \mathbb{E}\left[\frac{T_i - p(X_i)}{p(X_i)(1 - p(X_i))}\right]
+    \end{gather*}
+    \item Thus, given the estimated propensity scores $\hat{p}(X_i) $ for each individual, we can construct the so-called inverse propensity weighted (IPW) estimator $\hat{\tau}_\text{IPW} $
+    \begin{gather*}
+        \hat{\tau}_\text{IPW} = \frac{1}{N}\sum_{i = 1}^{N}\left[Y_i\left(\frac{T_i}{\hat{p}(X_i)} - \frac{(1 - T_i)}{1 - \hat{p}(X_i)}\right)\right] = \frac{1}{N}\sum_{i = 1}^{N}\left[Y_i \frac{T_i - \hat{p}(X_i)}{\hat{p}(X_i)\big(1 - \hat{p}(X_i)\big)}\right]
+    \end{gather*}
+    \begin{itemize}
+        \item Weights up (or down) the over-represented (or under-) observations
+    \end{itemize}
+\end{itemize}
+\subsubsection{Some issues}
+\begin{itemize}
+    \item Core issue with matching estimators remains: Requires common support/overlap
+    \begin{itemize}
+        \item $0 < \mathbb{P}[T_i = 1|X_i] < 1 $
+        \item Overlap needs to be evaluated before applying the method by looking at the propensity score distribution 
+    \end{itemize}
+    \item When overlap is weak, models rely on extrapolation in regions where data is sparse 
+    \begin{itemize}
+        \item e.g., a single or a few observations get very large weights 
+        \item \textbf{Extrapolation bias}
+        \item Often suggested to truncate propensity scores (e.g., min 0.01 and max 0.99)
+    \end{itemize}
+    \item Large variance: The estimator typically has quite large variance and is not very stable 
+\end{itemize}
+\subsection{The key idea and equations}
+\subsubsection{Doubly robust estimators -- The AIPW}
+\begin{itemize}
+    \item Combines propensity-score based and regression-based estimation 
+    \item Estimators that only need the propensity score \underline{or} the regression function to be correctly specified: The augmented IPW estimator (AIPW)
+    \begin{gather*}
+        \text{ATE} = \frac{1}{N}\sum_{i = 1}^{N}\left(\frac{T_i}{\hat{p}(X_i)}\big(Y_i - \hat{\mu}_{T = 1}(X_i) + \hat{\mu}_{T = 1}(X_i)\big)\right) - \frac{1}{N}\sum_{i = 1}^{N}\left(\frac{(1 - T_i)}{1 - \hat{p}(X_i)}\big(Y_i - \hat{\mu}_{T = 0}(X_i) + \hat{\mu}_{T = 0}(X_i)\big)\right)
+    \end{gather*}
+    \begin{itemize}
+        \item With $\hat{\mu}_{T = 1}(X_i) \text{ and } \hat{\mu}_{T = 0}(X_i) $ being the predicted value from a linear regression of $X \text{ on } Y $ for only treated or untreated observations
+    \end{itemize}
+    \item Typical way to estimate standard errors / confidence intervals: bootstrap
+    \newpage 
+    \item To better understand: rewrite in two parts:
+    \begin{gather*}
+        \text{ATE} = \underset{\text{Simple regression adjustment}}{\underbrace{\frac{1}{N}\sum_{i = 1}^{N}\left(\hat{\mu}_{T = 1}(X_i) - \hat{\mu}_{T = 0}(X_i)\right)}} + \underset{\text{IPW estimator on the residuals of the regression model $Y_i - \hat{\mu}(X_i) $}}{\underbrace{\frac{1}{N}\sum_{i = 1}^{N}\left(\frac{T_i}{\hat{p}(X_i)}\left(Y_i - \hat{\mu}_{T = 1}(X_i)\right) - \frac{(1 - T_i)}{1 - \hat{p}(X_i)}\left(Y_i - \hat{\mu}_{T = 0}(X_i)\right)\right)}}
+    \end{gather*}
+    \item If the regression model is correct, then $\mathbb{E}[Y_i - \hat{\mu}(X_i)|X_i] $ will be zero and the second part vanishes (i.e., we don't need the second part, because the first is already giving the right estimate)
+    \item If the regression model is not correct, but the propensity score model is, the second part will properly correct (debias) the regression model estimates using the residuals 
+    \item However, $\hat{\mu}_{T = 1}(X_i)\text{ and }\hat{\mu}_{T = 0}(X_i) $ must not come from an OLS regression
+\end{itemize}
+\subsection{AIPW and ML}
+\begin{itemize}
+    \item Two key components: 
+    \begin{itemize}
+        \item Outcome model: 
+        
+        The predictions of $Y \text{ given } X $ (i.e., $\mathbb{E}[Y_i(1)|X_i] = \hat{\mu}_{T = 1}(X_i) \text{ and } \mathbb{E}[Y_i(0)|X_i] = \hat{\mu}_{T = 0}(X_i) $)
+        \item Propensity score model: 
+
+        The predictions of $T $ given $X $ ($\mathbb{P}[T_i = 1|X_i] = \hat{p}(X_i) $)
+    \end{itemize}
+    \item Both can be any type of ML model that provides good predictions and may allow complex non-linearities and interactions among the $X $
+    \begin{itemize}
+        \item $\hat{\mu}_{T = 1}(X_i) \text{ and } \hat{\mu}_{T = 0}(X_i) $ must not come from an OLS regression
+        \item The propensity score $\hat{p}(X_i) $ must come from logistic regression 
+    \end{itemize}
+\end{itemize}
+\subsection{Characteristics of the AIPW model}
+\begin{itemize}
+    \item Model misspecification: 
+    \begin{itemize}
+        \item The estimator is doubly robust: it requires only one of the two models -- propensity score model or outcome model to be correct 
+        \item However, if both are wrong, the bias can be larger than in any of the two separately
+    \end{itemize}
+    \item Variance and instability in small samples 
+    \begin{itemize}
+        \item Usually, AIPW has smaller variance than the IPW estimator 
+        \begin{itemize}
+            \item AIPW achieves a semiparametric efficiency bound, meaninng that it attains the lowest possible asymptotic variance among consistent estimators when one of the two models is correct 
+            \item IPW, even with a correct propensity model, does not achieve this efficiency
+        \end{itemize}
+        \item If the outcome model is overfitted, it can lead to poor generalization and erratic AIPW estimates, especially in small samples 
+        \begin{itemize}
+            \item Requires regularization and cross-fitting 
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\newpage 
+\section{Two key challenges with ML in causal inference}
+\subsection{Regularization bias}
+\begin{itemize}
+    \item Regularization techniques (e.g., LASSO, ridge, elastic net etc.) deliberately shrink parameter estimates toward zero (or to another parameter) to reduce variance and prevent overfitting 
+    \item However, this shrinkage moves parameters away from their true estimates 
+    \begin{itemize}
+        \item They are no longer unbiased estimates of the true parameter 
+    \end{itemize}
+    \item Good for preduction because it tries to more strongly reduce variance than bias, but bad for causal inference 
+    \begin{itemize}
+        \item Therefore, using ML methods directly is usually not an option for causal inference 
+        \item Double robustness (e.g., the AIPW) or orthogonalization (e.g., double ML) solves this problem 
+    \end{itemize}
+\end{itemize}
+\subsection{Overfitting bias}
+\begin{itemize}
+    \item The more flexible the ML, the more it tends to overfit 
+    \begin{itemize}
+        \item The model treats random fluctuations as significant patterns 
+        \item Predictions contain traces of these random noise patterns 
+    \end{itemize}
+    \item When we use these predictions in our final causal equation (like the AIPW estimator or the double ML), the prediction errors of the ML models become correlated with the random errors of the outcome 
+    \begin{itemize}
+        \item They are not converging out to zero in expectation anymore 
+    \end{itemize}
+    \item This failure to average out creates a systematic overfitting bias 
+    \item How to solve this?
+    \begin{itemize}
+        \item Predictions need to be independent of estimation / training $\to $ cross-fitting 
+    \end{itemize}
+\end{itemize}
+\section{Double (debiased) ML}
+\subsection{The problem setting}
+\begin{itemize}
+    \item Can we use ML to more flexibly estimate the effects of covariates / control variables $X_i $
+    \begin{itemize}
+        \item We still assume that we have conditional independence given $X_i $
+        \item We have a potentially high-dimensional $X_i $
+    \end{itemize}
+    \item Problem: OLS regression can only take care of linear dependence of $X_i $
+    \item We assume some more general non-linear dependence of $X_i $: 
+    \begin{gather*}
+        Y_i = \beta T_i + g(X_i) + \epsilon_i\\ 
+        T_i = m(X_i) + \xi_i 
+    \end{gather*}
+    \begin{itemize}
+        \item with $g(\cdot)\text{ and }m(\cdot)$ being any type of non-linear function that relates $X_i \text{ with } Y_i \text{ and } T_i $
+    \end{itemize}
+\end{itemize}
+\newpage 
+\subsection{Double ML (DML)}
+\begin{itemize}
+    \item We may want to use more flexible ML to estimate $\hat{g}(\cdot)\text{ and }\hat{m}(\cdot)$ 
+    \begin{itemize}
+        \item Modern flexible ML are good in addressing non-linearities 
+        \item Modern flexible ML may be well regularized and perform (implicit) variable selection 
+    \end{itemize}
+    \item Problem: 
+    \begin{itemize}
+        \item ML focuses on prediction and not on unbiased estimation of single parameters; thus we want to utilize the predictive ability of ML (and not the parameter estimates)
+        \begin{itemize}
+            \item We don't need an interpretable ML; we will only need the predictions 
+            \item At the end, any form of ML can be used, such as a simple lasso, random forest, LGBM, NNs etc 
+        \end{itemize}
+        \item Regularization bias 
+        \begin{itemize}
+            \item Is addressed by double orthogonalization, utilizing the Frish-Waugh-Lowell theorem 
+        \end{itemize}
+        \item Overfitting bias 
+        \begin{itemize}
+            \item Is addressed using sample splitting or cross-splitting 
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\subsection{Frish-Waugh-Lowell theorem / Orthogonalization}
+\begin{itemize}
+    \item In a simple form, the theorem states that, when estimating a model on the form 
+    \begin{gather*}
+        Y_i = \alpha + \beta_1T_i + \beta_2X_i + \epsilon_i
+    \end{gather*}
+    \item Then, the following estimators of $\beta_1 $ are equivalent:
+    \begin{itemize}
+        \item The OLS estimator obtained by regressing $Y \text{ on } T \text{ and } X $
+        \begin{itemize}
+            \item i.e., the usual full regression approach 
+        \end{itemize}
+        \item The OLS estimator obtained by regressing $Y\text{ on } \tilde{T} $
+        \begin{itemize}
+            \item Where $\tilde{T} $ is the residual from the regression of $T \text{ on } X $ (i.e., $\tilde{T} = T - \hat{\delta}X $)
+            \item The idea is that we are isolating the variation in $T $ that is orthogonal (uncorrelated) to $X $
+        \end{itemize}
+        \item The OLS estimator obtained by regressing $\tilde{Y}\text{ on } \tilde{T} $
+        \begin{itemize}
+            \item Where $\tilde{Y} $ is the residual from the regression of $Y\text{ on } X $ (i.e., $\tilde{Y} = Y - \hat{\gamma}X $)
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\newpage 
+\subsection{Key concept of double ML}
+\begin{itemize}
+    \item A more general formulation of the same idea is the following, which does not require OLS estimates: 
+    \begin{gather*}
+        (Y_i - \mathbb{E}[Y_i|X_i]) = \beta(T_i - \mathbb{E}[T_i|X_i]) + \epsilon_i
+    \end{gather*}
+    \item Thus, we can calculate orthogonalized regressors using more flexible non-linear functions $\hat{g}(\cdot) \text{ and } \hat{m}(\cdot) $
+    \begin{itemize}
+        \item $\tilde{T}_i = T_i - \hat{m}(X_i) $
+        \item $\tilde{Y}_i = Y_i - \hat{g}(X_i) $
+    \end{itemize}
+    \item We can estimate $\tilde{Y}_i = \beta\tilde{T}_i + \xi_i $ to receive a treatment effect estimate $\beta \text{ for } T $
+    \begin{itemize}
+        \item This reduces a high-dimensional multicariate and non-linear model into a simple bivariate regression 
+    \end{itemize}
+\end{itemize}
+\subsection{Double ML}
+\begin{itemize}
+    \item We use so-called orthogonal moment conditions (because both residuals have partialed out of the contribution of $X $, the only variation left in $Y \text{ and } T $ is what is orthogonal to $X $)
+    \item Separates the estimation of the focal (causal) parameter from the estimation of the covariate model 
+    \begin{itemize}
+        \item We can use a simple linear and parametric model for focal effect 
+        \item We can use a flexible non-linear model for the covariates without the need to make parametric assumptions 
+        \item The coefficients on $\tilde{T} $ are uncorrelated with the estimation errors in $\hat{g}(X_i) \text{ or } \hat{m}(X_i) $
+        \begin{itemize}
+            \item Prevents small errors in the estimation of $g $ and $ m $ to propagate into the final target parameter 
+            \item However, not as strong as double-robustness (requires both models to be approximately correct)
+        \end{itemize}
+        \item This is also similar to the way post-double selection avoids regularization bias 
+    \end{itemize}
+\end{itemize}
+\subsection{Sample splitting and cross-fitting}
+\begin{itemize}
+    \item We do this to avoid overfitting bias 
+    \item Sample splitting: train ML models on one part of the data and estimate treatment on the other half 
+    \item Cross-fitting: Reverse sample splitting and average estimates $\beta = \frac{\beta_1 + \beta_2}{2} $
+    \item We can also split into more than two groups (typically 5; similar to $k $-fold CV)
+\end{itemize}
+\newpage 
+\subsection{Double ML vs. AIPW}
+\textbf{AIPW}
+\begin{itemize}
+    \item Allows only binary treatment variable $T $
+    \begin{itemize}
+        \item It requires the propensity score $p(X_i) $
+    \end{itemize}
+    \item Instability of division
+    \begin{itemize}
+        \item AIPW involves IPW and thus must divide by the propensity score. When $p $s are close to zero we get very large weights, leading to massive variance and unstable estimates 
+    \end{itemize}
+    \item Focuses only on the ATE 
+    \begin{itemize}
+        \item In fact, AIPW can be viewed as a special case of Double ML 
+    \end{itemize}
+\end{itemize}
+\textbf{Double ML}
+\begin{itemize}
+    \item Allows binary or continuous treatment variable 
+    \begin{itemize}
+        \item It uses the expected value of the treatment, which is more general
+    \end{itemize}
+    \item Mathematically more stable 
+    \begin{itemize}
+        \item Partialling-out approach (residualizing) does not require division by near zero even when treatment assignment is highly predictable 
+    \end{itemize}
+    \item Different types of treatment effect estimates 
+    \begin{itemize}
+        \item Allows for heterogenous effects (CATE)
+        \item Allows for instrumental variables (LATE)
+        \item $\dots$
+    \end{itemize}
+\end{itemize}
+\subsection{Partial linear vs. interactive model}
+\begin{itemize}
+    \item The model we have considered so far is called the partially linear treatment effect model, or partial linear regression (PLR) model 
+    \begin{itemize}
+        \item $Y_i = \beta T_i + g(X_i) + \epsilon_i $
+        \item The treatment effect is linear, and the rest can be non-linear 
+        \item No treatment heterogeneity: the effect $\beta $ is constant 
+    \end{itemize}
+    \item Interactive model / heterogenous treatment effect model 
+    \begin{itemize}
+        \item $Y_i = g(T_i, X_i) + \epsilon_i $
+        \item Allows for interaction of the treatment effect with all covariates (i.e., heterogenous effects)
+        \item However, focuses on estimating an overall effect (ATE or ATET) and not individual CATE 
+        \item Typically, requires binary treatment $D_i\in \{0, 1\} $
+    \end{itemize}
+\end{itemize}
+\newpage 
+\subsection{Interactive model / heterogenous treatment effect model}
+\begin{itemize}
+    \item Estimate different outcome models $\hat{g} \text{ for }T = 1 \text{ and } T = 0 $ (using cross-fitting)
+    \begin{gather*}
+        \hat{g}(1, X_i), \hat{g}(0, X_i), \hat{m}(X_i) 
+    \end{gather*}
+    \item Calculate orthogonalized score 
+    \begin{gather*}
+        \hat{\phi}_i = \hat{g}(1, X_i) - \hat{g}(0, X_i) + \frac{T_i\big(Y_i - \hat{g}(1, X_i)\big)}{\hat{m}(X_i)} - \frac{(1 - T_i)\big(Y_i - \hat{g}(0, X_i)\big)}{1 - \hat{m}(X_i)}
+    \end{gather*}
+    \item Calculate ATE as 
+    \begin{gather*}
+        \hat{\theta} = \frac{1}{n}\sum_{i = 1}^{n} \hat{\phi}_i
+    \end{gather*}
+\end{itemize}
+\subsection{Note of caution}
+\begin{itemize}
+    \item We still need to have all relevant condounders in the initial set of $X_i $
+    \begin{itemize}
+        \item We assume conditional independence
+        \item We only achieve a more flexible model (non-linear, interactions etc.)
+    \end{itemize}
+    \item We do not have any colliders in the initial set of $X_i $
+\end{itemize}
+\section{A brief outlook on causal trees}
+\textbf{Key idea}:
+\begin{itemize}
+    \item Main objective: Estimate heterogenous treatment effects (CATE) rather than simply predicting outcomes 
+    \item Splitting logic: Unlike standard trees that split to minimize prediction error, causal trees split the data to maximize the difference in treatment effects between subgroups 
+    \item Cross-fitting / ``honest trees'': Prevent overfitting by splitting the training data in half: One half determines the tree structure (the splits), and the other half estimates the causal effect within those leavevs 
+    \item Compared to DML
+    \begin{itemize}
+        \item Double ML focuses on high-dimensional confounders to estimate an unbiased overall effect (ATE)
+        \item Causal trees focus on discovering where and how that effect varies across different subgroups, generating interpretable, rule-based segments (e.g., if age more than 40, effect = X)
+        \item Combinations of both ideas exist: build the tree on the orthogonalized residuals (AIPW scores)
+    \end{itemize}
+\end{itemize}
+
+\end{document}
