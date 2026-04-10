@@ -412,19 +412,194 @@ From a practical standpoint, the answer to this research question has direct imp
 
 
 \newpage
-\section{The Return of the Gen-Z Intern}
+\section{Task 3: The Return of the Gen-Z Intern}
+In this task, we analyze a promotional campaign where treatment (receiving a discount) was \textit{not} randomized. We have a dataset of 5,000 observations with 20 covariates and must estimate the causal effect of the discount on sales (in USD) using several methods, relying on the conditional independence assumption. All code is provided in Appendix~\ref{app:task_three}.
 
-You are again a data analytics intern at a company that conducted a promotional campaign to
-measure the effect of a discount on sales. You can find the corresponding data file on
-itslearning.
+\subsection{EDA}
+First off, we can start by doing some exploratory data analysis to see what we're dealing with: 
 
-Unlike in the first randomized experiment (task 1), the treatment in this scenario (receiving the
-discount) is not randomized. However, you will be provided with a rich dataset containing 20
-covariates (e.g., customer demographics, past purchasing behavior) that should be sufficient to
-control for key influences and confounding factors
+\begin{verbatim}
+    > Shape: (5000, 22)
+    > Treatment distribution: d=0: 2532, d=1: 2468
+    > Treatment rate: 0.494
+    >
+    > Outcome summary by treatment group:
+    >     count     mean     std    min     25%     50%     75%     max
+    > d
+    > 0  2532.0  1587.37  437.91 -328.0  1296.0  1604.0  1889.5  2921.0
+    > 1  2468.0  1844.19  411.71  347.0  1563.0  1854.0  2132.0  2984.0
+    >
+    > Naive difference in means: 256.81
 
-\subsection{Subtask 3a}
-Your content here...
+\end{verbatim}
+
+We can observe a nearly 50/50 split in the data, so we don't have to worry about any extreme imbalance in treatment assignment. The naive ATE is 256.81 USD, suggesting that the treated group has substantially higher sales on average. The covariance balance looks surprisingly good, as most differences are tiny. The largest are in $X16 (-0.29)$, $X17 (-0.19)$, $X18 (-0.15)$. These are small but could still confound. The 256.81 USD may still be biased despite the decent balance, we'll learn if that's the case when doing actual estimation.
+
+\subsection{Regression Adjustment}
+We estimate the ATE using OLS regression with all 20 covariates and heteroskedasticity-robust standard errors (HC1):
+
+\begin{verbatim}
+    > Naive OLS (no controls):   ATE = 256.81, SE = 12.02, p < 0.001
+    > Regression adjustment:     ATE =  15.15, SE =  5.79, p = 0.009
+    >                            95% CI: [3.81, 26.50]
+    >                            R-squared: 0.883
+\end{verbatim}
+
+The first thing we (should) take notice of in the output is the massive confounding. The naive estimate drops to 15.15 USD after controlling for covariates! The covariates were heavily confounding the raw comparison. The $R^2 $ is 0.882, telling us that the 20 covariates explain 88.2\% of the sales variance, which is encouraging for the conditional independence assumption: the covariates are highly informative. The main drivers are $X14 (-304)$, $X15 (-134)$, $X7 (+22)$, $X5 (+36)$, and $X20 (-27)$. The treatment effect is still significant at 15.15 USD ($p = 0.009,\, \text{CI: }[3.81, 26.50] $); the discount appears to have a modest positive causal effect. 
+
+However, OLS regression adjustment has known limitations: it imposes a linear functional form, performs variance-weighted estimation, and does not protect against overfitting when the same sample is used for both fitting and inference. 
+
+\newpage 
+\subsection{Matching}
+\subsubsection{Propensity Score Estimation and Common Support}
+
+We estimate propensity scores using logistic regression on standardized covariates: 
+
+\begin{verbatim}
+    > Propensity Score Summary:
+    > Control group - mean: 0.26, min: 0.0001, max: 0.99
+    > Treated group - mean: 0.73, min: 0.02,   max: 1.00
+    >
+    > Common support range: [0.02, 0.99]
+    > Observations in common support: 5000 / 5000 (100.0%)
+\end{verbatim}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-03-20-19-01-29.png}
+\end{figure}
+
+The figure reveals that the propensity score distributions are heavily separated: control observations cluster near 0 and treated observations cluster near 1. This confirms that the covariates are highly predictive of treatment assignment, consistent with the strong confounding observed earlier. While technically all observations fall within the common support range, the density of the overlap in the middle range ($\sim 0.2 - 0.8 $) is thin relative to the tails. This has direct implications for IPW (discussed below), where extreme propensity scores produce unstable weights. 
+
+\subsubsection{Propensity Score Matching} 
+
+We implement 1:1 nearest-neighbor matching on the propensity score (without replacement). The ATET is $\sim 2.40 $, statistically insignificant (CI: $[\sim 23.70, 18.90] $). Match quality is excellent (mean propensity score distance of 0.0006), and covariance balance is reasonable (mean standardized mean difference of 0.075, max of 0.24). 
+\begin{verbatim}
+    > Propensity Score Matching (1:1 NN):
+    > ATET estimate: -2.40
+    > Std err: 10.87
+    > 95% CI: [-23.70, 18.90]
+    > Mean PS distance: 0.0006
+    > Max PS distance:  0.0064
+\end{verbatim}
+
+
+\newpage 
+\subsubsection{Mahalanobis Distance Matching}
+
+As an alternative distance measure, we use Mahalanobis distance, which accounts for different variances and correlations between covariates. It is the most common alternative to propensity score matching for multivariate matching. 
+
+\begin{verbatim}
+    > Mahalanobis Distance Matching (1:1 NN):
+    > ATET estimate: 150.85
+    > Std err: 7.66
+    > 95% CI: [135.84, 165.87]
+    > Mean Mahalanobis distance: 3.45
+    > Max Mahalanobis distance:  5.37
+\end{verbatim}
+
+The Mahalanobis estimate of 150.85 USD should not be trusted. Covariate balance diagnostics reveal a max standardized mean difference of 1.03, indicating at least one covariate is severely imbalanced after matching. This is the curse of dimensionality: with 20 covariates, Mahalanobis distance must simultaneously minimize discrepancies across all dimensions, resulting in poor matches overall. This illustrates perfectly why propensity score matching is preferred in high-dimensional settings like this one. 
+\begin{center}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Method} & \textbf{Mean $|$SMD$|$} & \textbf{Max $|$SMD$|$} \\\hline
+        PS Matching & 0.075 & 0.242 \\
+        Mahalanobis & 0.198 & 1.031 \\\hline
+    \end{tabular}
+\end{center}
+
+\subsection{Inverse Probability Weighting (IPW)}
+
+Using the IPW estimator with propensity scores clipped to $[0.01,\, 0.99] $ and bootstrap standard errors, we get an ATE of -311.69 USD:
+
+\begin{verbatim}
+    > IPW Estimator:
+    > ATE estimate: -311.69
+    > Bootstrap SE: 81.21
+    > 95% CI: [-470.87, -152.51]
+    >
+    > Weight diagnostics:
+    > Treated weights - mean: 1.81, max: 56.29
+    > Control weights - mean: 17.44, max: 100.00
+\end{verbatim}
+
+
+This is clearly unreliable. The weight diagnostics reveal the problem: the max control weight hits the clipping ceiling of 100 (1/0.01), and the mean control weight is 17.44, which is far from the ideal $\sim 1 $. As the propensity score plot showed, many control observations have propensity scores near 0, producing extreme inverse weights that dominate the estimate.
+
+\subsection{Augmented Inverse Probability Weighting (AIPW)}
+
+The AIPW estimator combines propensity scores weighting with outcome regression, using a linear regression outcome model and logistic regression propensity model: 
+
+\begin{verbatim}
+    > AIPW Estimator (Linear + Logistic):
+    > ATE estimate: 18.85
+    > Bootstrap SE: 8.42
+    > 95% CI: [2.34, 35.35]
+\end{verbatim}
+
+The ATE is 18.85 USD (SE = 8.42, CI: $[2.34,\, 35.35] $), close to the regression adjustment estimate (15.15). This is expected: when the outcome model is well-specified, the IPW correction term becomes small, and the estimator is primarily driven by the regression component. This is the double robustness property. 
+
+However, our AIPW implementation does not use cross-fitting, meaning the same observations are used to fit both nuisance models and estimate the treatment effect. This can introduce overfitting bias. 
+
+\subsection{Double ML}
+
+DML addresses the two key challenges of using ML in causal inference: regularization bias (via orthogonalization, based on the Frisch-Waugh-Lovell theorem) and overfitting bias (via 5-fold cross-fitting). We explore three ML algorithms for both the outcome and treatment models: 
+
+\begin{verbatim}
+    > DML Summary:
+    > ML Method                  ATE      SE     95% CI
+    > ---------------------------------------------------------
+    > Lasso                     1.00    6.00    [-10.77, 12.77]
+    > Random Forest             1.00    5.83    [-10.42, 12.42]
+    > Gradient Boosting         1.00    5.94    [-10.65, 12.65]
+\end{verbatim}
+
+All three converge to ATE $\sim 1.00 $ USD, which is statistically insignificant. The convergence across fundamentally different ML methods (linear regularized, ensemble bagging, ensemble boosting) provides strong evidence that the result is robust to model choice. 
+
+\subsection{Comparison and Discussion}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline 
+        \textbf{Method} & \textbf{ATE (USD)} & \textbf{Significant?} & \textbf{Trust level}\\\hline 
+        Naive (no controls) & 256.81 & Yes & None (confounded)\\\hline 
+        Regression adj. & 15.15 & Yes ($p = 0.009 $) & Moderate\\\hline 
+        PS Matching & -2.40 & No & Moderate\\\hline 
+        Mahalanobis & 150.85 & Yes & Low (bad balance)\\\hline 
+        IPW & -311.69 & Yes & None (extreme weights)\\\hline 
+        AIPW & 18.85 & Yes ($p < 0.05 $) & Moderate-high\\\hline 
+        DML (Lasso) & 1 & No ($p = 0.87 $) & High\\\hline 
+        DML (Random Forest) & 1 & No ($p = 0.87 $) & High\\\hline 
+        DML (Gradient Boost) & 1 & No ($p = 0.87 $) & High\\\hline 
+    \end{tabular}
+\end{center}
+\subsubsection{Why do the estimates differ?}
+
+The estimates split into two groups: methods without cross-fitting (OLS and AIPW) suggest a modest significant effect of 15-19 USD, while methods with cross-fitting (DML) or nonparametric approaches (PS matching) find a near-zero, insignificant effect of -2 to 1 USD. This pattern is consistent with overfitting bias. DML's cross-fitting explicitly breaks the correlation between prediction errors and the outcome's random errors.
+
+The Mahalanobis estimate (150.85 USD) is an outlier driven by poor matching quality in 20 dimensions, while IPW (-311.69 USD) is dominated by extreme inverse probability weights caused by the separated propensity score distributions. 
+
+\subsubsection{Which estimates do we trust the most?}
+
+DML is the most methodologically rigorous estimator in our comparison: 
+\begin{itemize}
+    \item It addresses regularization bias through orthogonalization (the Frisch-Waugh-Lovell principle), ensuring that shrinkage in the ML models does not propagate into the treatment effect estimates. 
+    \item It addresses overfitting bias through 5-fold cross-fitting, ensuring that predictions are independent of the estimation sample. 
+    \item It allows non-linear confounding through flexible ML, relaxing the linearity assumption that OLS regression imposes. 
+    \item All three ML algorithms converge to the same estimate, demonstrating robustness to model choice. 
+\end{itemize}
+The PS matching result (-2.40 USD, insignificant) corroborates the DML finding, despite using a completely different methodology. 
+
+\subsubsection{Assumptions and limitations}
+All methods in this analysis rely on the \textit{conditional independence assumptions}: the potential outcomes are independent of treatment conditional on the covariates. If there exist unobserved confounders that influence both treatment assignment and sales, all estimates are biased. The high $R^2 $ (0.883) is reassuring; the 20 covariates explain the vast majority of outcome variation, but it does not guarantee that the selection mechanism is fully captured. 
+
+Additionally, the separated propensity score distributions indicate that the treated and control groups occupy somewhat different regions of the covariate space. While common support technically holds, the thin overlap in the middle range means that some estimates rely on comparisons between units that are not closely comparable, particularly for IPW which assigns extreme weights to observations in low-density regions. 
+
+\subsubsection{Recommendation to the marketing manager}
+Based on our analysis, and particularly the DML estimates which we consider most trustworthy, the discount campaign likely has no meaningful causal effect on sales. The naive difference of 257 USD was almost entirely driven by selection effects: customers who received discounts were systematically different from those that did not, and these differences (and not the discount itself) explain the higher sales. 
+
+We recommend the manager not assume that discounts drive incremental revenue based on this observational data. To obtain a definitive answer, we recommend conducting a randomized experiment where discounts are assigned randomly to a subset of customers. This would eliminate confounding by design and provide an unbiased estimate of the discount's true effect. If randomization is infeasible, the company should at minimum collect and control for all variables that influence both discount targeting and purchasing behavior. 
+
 
 \newpage
 \section{Task 4: Title Here}
@@ -784,10 +959,516 @@ axes[2].fill_between(effects * 100, net_by_effect, 0, where=[n < 0 for n in net_
 plt.tight_layout()
 plt.show()
 \end{lstlisting}
-\subsection{Task 2 Code}
+\subsection{Task 3 Code}
+\label{app:task_three}
 \begin{lstlisting}
-# Your Task 2 code here
+    import pandas as pd 
+    import numpy as np 
+    import statsmodels.api as sm
+    import matplotlib.pyplot as plt 
+    import seaborn as sns 
+    
+    pd.set_option('display.max_columns', None)
+    df = pd.read_csv('t3.csv')
 \end{lstlisting}
+\begin{lstlisting}
+    print(f'shape: {df.shape}')
+    print(f'\ntreatment distribution:\n{df['d'].value_counts()}')
+    print(f'\ntreatment rate: {df['d'].mean():.3f}')
+
+    print(f'\noutcome summary by treatment group')
+    print(df.groupby('d')['y'].describe().round(2))
+
+    print(f'\nnaive difference in means: {df[df['d']==1]['y'].mean() - df[df['d']==0]['y'].mean():.2f}')
+
+    print(f'\ncovariate balance (mean by treatment group)')
+    covariates = [f'X{i}' for i in range(1, 21)]
+    balance = df.groupby('d')[covariates].mean().T
+    balance.columns = ['Control (d=0)', 'Treated (d=1)']
+    balance['Diff'] = balance['Treated (d=1)'] - balance['Control (d=0)']
+    print(balance.round(3))
+\end{lstlisting}
+\begin{verbatim}
+    > shape: (5000, 22)
+    
+    > treatment distribution:
+    > d
+    > 0    2532
+    > 1    2468
+    > Name: count, dtype: int64
+    > 
+    > treatment rate: 0.494
+    > 
+    > outcome summary by treatment group
+    >     count     mean     std    min     25%     50%     75%     max
+    > d                                                                
+    > 0  2532.0  1587.37  437.91 -328.0  1296.0  1604.0  1889.5  2921.0
+    > 1  2468.0  1844.19  411.71  347.0  1563.0  1854.0  2132.0  2984.0
+    > 
+    > naive difference in means: 256.81
+    > 
+    > covariate balance (mean by treatment group)
+    >      Control (d=0)  Treated (d=1)   Diff
+    > X1          24.065         24.059 -0.005
+    > X2          14.095         14.110  0.015
+    > X3          22.001         22.010  0.009
+    > X4          15.763         15.784  0.022
+    > X5           0.534          0.542  0.008
+    > X6          23.059         23.088  0.029
+    > X7          11.346         11.439  0.093
+    > X8          10.226         10.459  0.233
+    > X9          20.425         20.106 -0.319
+    > X10         15.643         14.784 -0.859
+    > X11         14.512         13.728 -0.784
+    > X12          6.941          5.728 -1.213
+    > X13         14.797         13.940 -0.857
+    > X14          5.536          4.943 -0.593
+    > X15         11.870         11.466 -0.404
+    > X16         11.614         11.321 -0.292
+    > X17         12.579         12.386 -0.193
+    > X18          8.018          7.868 -0.150
+    > X19         11.584         11.504 -0.080
+    > X20          0.347          0.346 -0.000
+\end{verbatim}
+\begin{lstlisting}
+    covariates = [f'X{i}' for i in range(1, 21)]
+
+    X_naive = sm.add_constant(df[['d']])
+    model_naive = sm.OLS(df['y'], X_naive).fit(cov_type='HC1')
+
+    print('naive OLS (no controls)')
+    print(f'ATE estimate: {model_naive.params['d']:.2f}')
+    print(f'std err: {model_naive.bse['d']:.2f}')
+    print(f'p-value: {model_naive.pvalues['d']:.4f}')
+    print(f'95% CI: [{model_naive.conf_int().loc['d'][0]:.2f}, {model_naive.conf_int().loc['d'][1]:.2f}]')
+
+    #regression adj (w all covariatse)
+    X_adj = sm.add_constant(df[['d'] + covariates])
+    model_adj = sm.OLS(df['y'], X_adj).fit(cov_type='HC1')
+    print('\nregression adjustment (all 20 covariates)')
+    print(f'ATE estimate: {model_adj.params['d']:.2f}')
+    print(f'std err: {model_adj.bse['d']:.2f}')
+    print(f'p-value: {model_adj.pvalues['d']:.4f}')
+    print(f'95% CI: [{model_adj.conf_int().loc['d'][0]:.2f}, {model_adj.conf_int().loc['d'][1]:.2f}]')
+
+    print('\nfull regression summary')
+    print(model_adj.summary())
+\end{lstlisting}
+\begin{verbatim}
+    > naive OLS (no controls)
+    > ATE estimate: 256.81
+    > std err: 12.02
+    > p-value: 0.0000
+    > 95% CI: [233.26, 280.37]
+    > 
+    > regression adjustment (all 20 covariates)
+    > ATE estimate: 15.15
+    > std err: 5.79
+    > p-value: 0.0089
+    > 95% CI: [3.81, 26.50]
+    > 
+    > full regression summary
+    >                             OLS Regression Results                            
+    > ==============================================================================
+    > Dep. Variable:                      y   R-squared:                       0.883
+    > Model:                            OLS   Adj. R-squared:                  0.882
+    > Method:                 Least Squares   F-statistic:                     1485.
+    > Date:                Fri, 20 Mar 2026   Prob (F-statistic):               0.00
+    > Time:                        18:12:17   Log-Likelihood:                -32219.
+    > No. Observations:                5000   AIC:                         6.448e+04
+    > Df Residuals:                    4978   BIC:                         6.463e+04
+    > Df Model:                          21                                         
+    > Covariance Type:                  HC1                                         
+    > ==============================================================================
+    >                  coef    std err          z      P>|z|      [0.025      0.975]
+    > ------------------------------------------------------------------------------
+    > const       4697.0456     75.960     61.836      0.000    4548.167    4845.924
+    > d             15.1536      5.789      2.618      0.009       3.808      26.500
+    > X1             3.0618      1.509      2.029      0.042       0.104       6.020
+    > X2            -1.5605      1.809     -0.863      0.388      -5.106       1.985
+    > X3             1.3632      1.825      0.747      0.455      -2.215       4.941
+    > X4            -2.8476      1.743     -1.634      0.102      -6.264       0.569
+    > X5            36.2410      5.662      6.401      0.000      25.144      47.338
+    > X6            -1.7214      1.710     -1.007      0.314      -5.073       1.630
+    > X7            21.8707      1.795     12.186      0.000      18.353      25.388
+    > X8            -1.3171      1.846     -0.714      0.475      -4.934       2.300
+    > X9             0.8756      1.800      0.487      0.627      -2.652       4.403
+    > X10           -1.3391      1.864     -0.718      0.472      -4.992       2.314
+    > X11           -0.1072      3.764     -0.028      0.977      -7.484       7.269
+    > X12            1.2723      4.149      0.307      0.759      -6.859       9.404
+    > X13           -7.1754      3.710     -1.934      0.053     -14.448       0.097
+    > X14         -304.0026      3.630    -83.740      0.000    -311.118    -296.887
+    > X15         -133.6610      3.774    -35.414      0.000    -141.058    -126.264
+    > X16            0.5139      3.539      0.145      0.885      -6.423       7.450
+    > X17            1.5268      3.650      0.418      0.676      -5.628       8.681
+    > X18           -1.8884      3.625     -0.521      0.602      -8.993       5.216
+    > X19            0.8743      3.360      0.260      0.795      -5.712       7.460
+    > X20          -26.9651      5.402     -4.992      0.000     -37.552     -16.378
+    > ==============================================================================
+    > Omnibus:                        5.993   Durbin-Watson:                   2.018
+    > Prob(Omnibus):                  0.050   Jarque-Bera (JB):                6.056
+    > Skew:                          -0.067   Prob(JB):                       0.0484
+    > Kurtosis:                       3.106   Cond. No.                     2.21e+03
+    > ==============================================================================
+    > 
+    > Notes:
+    > [1] Standard Errors are heteroscedasticity robust (HC1)
+    > [2] The condition number is large, 2.21e+03. This might indicate that there are
+    > strong multicollinearity or other numerical problems.
+\end{verbatim}
+\begin{lstlisting}
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+    import warnings
+    warnings.filterwarnings('ignore')
+
+    covariates = [f'X{i}' for i in range(1, 21)]
+    X = df[covariates].values
+    y_out = df['y'].values
+    d = df['d'].values
+
+    #est prop scores
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    ps_model = LogisticRegression(max_iter=1000, C=1.0)
+    ps_model.fit(X_scaled, d)
+    pscore = ps_model.predict_proba(X_scaled)[:, 1]
+    df["pscore"] = pscore
+
+    print('propensity score summary')
+    print(f'control group - mean: {df[df["d"]==0]["pscore"].mean():.4f}, '
+        f'min: {df[df['d']==0]["pscore"].min():.4f}, '
+        f'max: {df[df['d']==0]["pscore"].max():.4f}')
+    print(f'treated group - mean: {df[df['d']==1]["pscore"].mean():.4f}, '
+        f'min: {df[df['d']==1]["pscore"].min():.4f}, '
+        f'max: {df[df['d']==1]["pscore"].max():.4f}')
+
+    #common support 
+    fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+    ax.hist(df[df['d']==0]["pscore"], bins=50, alpha=0.5, label='Control', density=True, color='blue')
+    ax.hist(df[df['d']==1]["pscore"], bins=50, alpha=0.5, label='Treated', density=True, color='red')
+    ax.set_xlabel('propensity score')
+    ax.set_ylabel('density')
+    ax.set_title('propensity score distribution by treatment group')
+    ax.legend()
+    plt.tight_layout()
+    plt.show()
+
+    #check overlap region
+    common_min = max(df[df['d']==0]["pscore"].min(), df[df['d']==1]["pscore"].min())
+    common_max = min(df[df['d']==0]["pscore"].max(), df[df['d']==1]["pscore"].max())
+    in_support = ((df["pscore"] >= common_min) & (df["pscore"] <= common_max)).sum()
+    print(f'common support range: [{common_min:.4f}, {common_max:.4f}]')
+    print(f'observations in common support: {in_support} / {len(df)} ({in_support/len(df)*100:.1f}%)')
+\end{lstlisting}
+\begin{verbatim}
+    > propensity score summary
+    > control group - mean: 0.2596, min: 0.0001, max: 0.9934
+    > treated group - mean: 0.7337, min: 0.0178, max: 0.9998
+\end{verbatim}
+\begin{lstlisting}
+    from sklearn.neighbors import NearestNeighbors
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import StandardScaler
+
+    covariates = [f'X{i}' for i in range(1, 21)]
+    X = df[covariates].values 
+    d = df['d'].values
+    y_out = df['y'].values
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    #prop score 1:1 nearest neigh
+    ps_model = LogisticRegression(max_iter=1000, C=1.0)
+    ps_model.fit(X_scaled, d)
+    pscore = ps_model.predict_proba(X_scaled)[:, 1]
+    df['pscore'] = pscore 
+
+    treated_idx = np.where(d == 1)[0]
+    control_idx = np.where(d == 0)[0]
+
+    nn_ps = NearestNeighbors(n_neighbors=1, metric='euclidean')
+    nn_ps.fit(pscore[control_idx].reshape(-1, 1))
+    distances_ps, indices_ps = nn_ps.kneighbors(pscore[treated_idx].reshape(-1, 1))
+
+    matched_control_idx_ps = control_idx[indices_ps.flatten()]
+    att_ps = (y_out[treated_idx] - y_out[matched_control_idx_ps]).mean()
+    att_ps_se = (y_out[treated_idx] - y_out[matched_control_idx_ps]).std() / np.sqrt(len(treated_idx))
+
+    print(f'prop score matching (1:1 NN)')
+    print(f'ATET estimate: {att_ps}')
+    print(f'STD err: {att_ps_se}')
+    print(f'95% CI: [{att_ps - 1.96*att_ps_se}, {att_ps + 1.96*att_ps_se}]')
+    print(f'mean PS distance: {distances_ps.mean()}')
+    print(f'max PS distance: {distances_ps.max()}')
+
+    #support check 
+    print(f"control: [{pscore[control_idx].min()}, {pscore[control_idx].max()}]")
+    print(f"treated: [{pscore[treated_idx].min()}, {pscore[treated_idx].max()}]")
+
+
+    #mahalanobis distance 
+    cov_matrix = np.cov(X.T)
+    cov_inv = np.linalg.inv(cov_matrix)
+
+    nn_mah = NearestNeighbors(n_neighbors=1, metric='mahalanobis', metric_params={'VI' : cov_inv})
+    nn_mah.fit(X[control_idx])
+    distances_mah, indices_mah = nn_mah.kneighbors(X[treated_idx])
+
+    matched_control_idx_mah = control_idx[indices_mah.flatten()]
+    att_mah = (y_out[treated_idx] - y_out[matched_control_idx_mah]).mean()
+    att_mah_se = (y_out[treated_idx] - y_out[matched_control_idx_mah]).std() / np.sqrt(len(treated_idx))
+
+    print(f'mahalanobis distance matching (1:1 NN)')
+    print(f'ATET estimate: {att_mah}')
+    print(f'STD err: {att_mah_se}')
+    print(f'95% CI: [{att_mah - 1.96*att_mah_se}, {att_mah + 1.96*att_mah_se}]')
+    print(f'mean PS distance: {distances_mah.mean()}')
+    print(f'max PS distance: {distances_mah.max()}')
+
+    #matching quality
+    print('covariate balance after matching (std mean diff)')
+    print(f"{'method':<15} {'mean |SMD|':>12} {'max |SMD|':>12}\n{'-' * 42}")
+    for name, matched_ctrl_idx in [('PS Match', matched_control_idx_ps), ('Mahalanobis', matched_control_idx_mah)]:
+        smds = []
+        for col in covariates: 
+            treated_vals = df.loc[treated_idx, col].values 
+            control_vals = df.loc[matched_ctrl_idx, col].values 
+            pooled_std = np.sqrt((treated_vals.var() + control_vals.var()) / 2)
+            if pooled_std > 0: 
+                smd = abs(treated_vals.mean() - control_vals.mean()) / pooled_std
+            else: 
+                smd = 0 
+            smds.append(smd)
+        print(f'{name:<15} {np.mean(smds):>12.4f} {np.max(smds):>12.4f}')
+\end{lstlisting}
+\begin{verbatim}
+    > prop score matching (1:1 NN)
+    > ATET estimate: -2.401539708265802
+    > STD err: 10.86664959388228
+    > 95% CI: [-23.700172912275068, 18.897093495743466]
+    > mean PS distance: 0.0006414092179794127
+    > max PS distance: 0.006410513573759324
+    > control: [5.235242886897245e-05, 0.9934261103936177]
+    > treated: [0.017764962271901913, 0.999836623967377]
+    > mahalanobis distance matching (1:1 NN)
+    > ATET estimate: 150.85129659643437
+    > STD err: 7.660488275297928
+    > 95% CI: [135.83673957685042, 165.8658536160183]
+    > mean PS distance: 3.4495566129441113
+    > max PS distance: 5.372612798799318
+    > covariate balance after matching (std mean diff)
+    > method            mean |SMD|    max |SMD|
+    > ------------------------------------------
+    > PS Match              0.0750       0.2424
+    > Mahalanobis           0.1976       1.0309
+\end{verbatim}
+\begin{lstlisting}
+    from sklearn.linear_model import LinearRegression, LogisticRegression
+
+    covariates = [f'X{i}' for i in range(1, 21)]
+    X = df[covariates].values 
+    d = df['d'].values
+    y_out = df['y'].values
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    #IPW est
+    ps_model = LogisticRegression(max_iter=1000, C=1.0)
+    ps_model.fit(X_scaled, d)
+    pscore = ps_model.predict_proba(X_scaled)[:, 1]
+
+    #clip prop scores to avoid insane weights 
+    pscore_clipped = np.clip(pscore, 0.01, 0.99)
+
+    ipw_ate = np.mean(y_out * (d / pscore_clipped - (1 - d) / (1 - pscore_clipped)))
+
+    #bootstrap for std err 
+    np.random.seed(42)
+    n_boot = 1000
+    boot_ipw = []
+
+    for _ in range(n_boot):
+        idx = np.random.choice(len(y_out), size=len(y_out), replace=True)
+        ps_b = LogisticRegression(max_iter=1000, C=1.0)
+        ps_b.fit(X_scaled[idx], d[idx])
+        ps_hat = np.clip(ps_b.predict_proba(X_scaled[idx])[:, 1], 0.01, 0.99)
+        boot_ipw.append(np.mean(y_out[idx] * (d[idx] / ps_hat - (1 - d[idx]) / (1 - ps_hat))))
+
+    ipw_se = np.std(boot_ipw)
+    print(f'ipw estimator')
+    print(f'ATE estimate: {ipw_ate}')
+    print(f'bootstrap SE: {ipw_se}')
+    print(f'95% CI: [{ipw_ate - 1.96*ipw_se}, {ipw_ate + 1.96*ipw_se}]')
+
+    #check weight dist
+    weights_treated = 1 / pscore_clipped[d == 1]
+    weights_control = 1 / (1 - pscore_clipped[d == 1])
+    print('\nweight diagnostics')
+    print(f'treated weights  - mean: {weights_treated.mean():.2f}, max: {weights_treated.max():.2f}')
+    print(f'control weights  - mean: {weights_control.mean():.2f}, max: {weights_control.max():.2f}')
+
+    #AIPW est
+    X_treated = X_scaled[d == 1]
+    X_control = X_scaled[d == 0]
+    y_treated = y_out[d == 1]
+    y_control = y_out[d == 0]
+
+    mu1_model = LinearRegression().fit(X_treated, y_treated)
+    mu0_model = LinearRegression().fit(X_control, y_control)
+
+    mu1_hat = mu1_model.predict(X_scaled)
+    mu0_hat = mu0_model.predict(X_scaled)
+
+    aipw_ate = np.mean(
+        (d / pscore_clipped) * (y_out - mu1_hat) + mu1_hat
+        - ((1 - d) / (1 - pscore_clipped)) * (y_out - mu0_hat) - mu0_hat
+    )
+
+    #bootsrap for AIPW SE 
+    boot_aipw = []
+    np.random.seed(42)
+    for _ in range(n_boot):
+        idx = np.random.choice(len(y_out), size=len(y_out), replace=True)
+        #prop model
+        ps_b = LogisticRegression(max_iter=1000, C=1.0)
+        ps_b.fit(X_scaled[idx], d[idx])
+        ps_hat = np.clip(ps_b.predict_proba(X_scaled[idx])[:, 1], 0.01, 0.99)
+        #outcome models
+        m1 = LinearRegression().fit(X_scaled[idx][d[idx]==1], y_out[idx][d[idx]==1])
+        m0 = LinearRegression().fit(X_scaled[idx][d[idx]==0], y_out[idx][d[idx]==0])
+        mu1_b = m1.predict(X_scaled[idx])
+        mu0_b = m0.predict(X_scaled[idx])
+        #AIPW
+        ate_b = np.mean(
+            (d[idx] / ps_hat) * (y_out[idx] - mu1_b) + mu1_b
+            - ((1 - d[idx]) / (1 - ps_hat)) * (y_out[idx] - mu0_b) - mu0_b
+        )
+        boot_aipw.append(ate_b)
+
+    aipw_se = np.std(boot_aipw)
+    print(f'AIPW estimator (linear + logistic)')
+    print(f'ATE estimate: {aipw_ate:.2f}')
+    print(f'Bootstrap SE: {aipw_se:.2f}')
+    print(f'95% CI: [{aipw_ate - 1.96*aipw_se:.2f}, {aipw_ate + 1.96*aipw_se:.2f}]')
+\end{lstlisting}
+\begin{verbatim}
+    > ipw estimator
+    > ATE estimate: -311.6858086437184
+    > bootstrap SE: 81.21435043863885
+    > 95% CI: [-470.86593550345054, -152.5056817839863]
+    > 
+    > weight diagnostics
+    > treated weights  - mean: 1.81, max: 56.29
+    > control weights  - mean: 17.44, max: 100.00
+    > AIPW estimator (linear + logistic)
+    > ATE estimate: 18.85
+    > Bootstrap SE: 8.42
+    > 95% CI: [2.34, 35.35]
+\end{verbatim}
+\begin{lstlisting}
+    from sklearn.linear_model import LassoCV, LogisticRegressionCV
+    from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier, GradientBoostingRegressor, GradientBoostingClassifier
+    from sklearn.model_selection import cross_val_predict, KFold 
+    from scipy.stats import norm
+    import warnings
+    warnings.filterwarnings('ignore')
+
+    covariates = [f'X{i}' for i in range(1, 21)]
+    X = df[covariates].values 
+    d = df['d'].values
+    y_out = df['y'].values
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+    def dml_estimate(y_model, d_model, X_data, y_data, d_data, name):
+        #X-fitted resids 
+        y_hat = cross_val_predict(y_model, X_data, y_data, cv=kf)
+        d_hat = cross_val_predict(d_model, X_data, d_data, cv=kf)
+
+        if hasattr(d_model, 'predict_proba'):
+            d_hat_prob = cross_val_predict(d_model, X_data, d_data, cv=kf, method='predict_proba')[:, 1]
+        else: 
+            d_hat_prob = d_hat 
+
+        y_resid = y_data - y_hat 
+        d_resid = d_data - d_hat_prob 
+
+        #OLS 
+        theta = np.sum(d_resid * y_resid) / np.sum(d_resid * y_resid)
+
+        #std err
+        n = len(y_data)
+        residuals = y_resid - theta * d_resid
+        V = np.mean(d_resid**2)
+        se = np.sqrt(np.mean((d_resid * residuals)**2) / (n * V**2))
+        z = theta / se
+        p_value = 2 * (1 - norm.cdf(abs(z)))
+
+
+        print(f'DML: {name}')
+        print(f'ATE estimate: {theta:.2f}')
+        print(f'Std err: {se:.2f}')
+        print(f'95% CI: [{theta - 1.96*se:.2f}, {theta + 1.96*se:.2f}]')
+        print(f'p-value: {p_value}')
+        return theta, se
+
+    #lasso + logistic lasso 
+    theta_lasso, se_lasso = dml_estimate(
+        LassoCV(cv=5, random_state=42),
+        LogisticRegressionCV(cv=5, penalty='l1', solver='saga', max_iter=2000, random_state=42),
+        X_scaled, y_out, d, 'Lasso + Logistic Lasso'
+    )
+
+    #rf 
+    theta_rf, se_rf = dml_estimate(
+        RandomForestRegressor(n_estimators=200, max_depth=6, min_samples_leaf=20, random_state=42),
+        RandomForestClassifier(n_estimators=200, max_depth=6, min_samples_leaf=20, random_state=42),
+        X_scaled, y_out, d, 'Random Forest'
+    )
+
+    #GB
+    theta_gb, se_gb = dml_estimate(
+        GradientBoostingRegressor(n_estimators=200, max_depth=4, learning_rate=0.1, random_state=42),
+        GradientBoostingClassifier(n_estimators=200, max_depth=4, learning_rate=0.1, random_state=42),
+        X_scaled, y_out, d, 'Gradient boosting'
+    )
+
+    print(f"{'ML Method':<25} {'ATE':>8} {'SE':>8} {'95% CI'}")
+    print('-' * 65)
+    for name, theta, se in [('Lasso', theta_lasso, se_lasso), 
+                            ('Random Forest', theta_rf, se_rf),
+                            ('Gradient Boosting', theta_gb, se_gb)]:
+        print(f'{name:<25} {theta:>8.2f} {se:>8.2f}   [{theta-1.96*se:.2f}, {theta+1.96*se:.2f}]')
+\end{lstlisting}
+\begin{verbatim}
+    > DML: Lasso + Logistic Lasso
+    > ATE estimate: 1.00
+    > Std err: 6.00
+    > 95% CI: [-10.77, 12.77]
+    > p-value: 0.8677392655413607
+    > DML: Random Forest
+    > ATE estimate: 1.00
+    > Std err: 5.83
+    > 95% CI: [-10.42, 12.42]
+    > p-value: 0.863697423891318
+    > DML: Gradient boosting
+    > ATE estimate: 1.00
+    > Std err: 5.94
+    > 95% CI: [-10.65, 12.65]
+    > p-value: 0.8663862311298867
+    > ML Method                      ATE       SE 95% CI
+    > -----------------------------------------------------------------
+    > Lasso                         1.00     6.00   [-10.77, 12.77]
+    > Random Forest                 1.00     5.83   [-10.42, 12.42]
+    > Gradient Boosting             1.00     5.94   [-10.65, 12.65]
+\end{verbatim}
 
 \subsection{Task 3 Code}
 \begin{lstlisting}

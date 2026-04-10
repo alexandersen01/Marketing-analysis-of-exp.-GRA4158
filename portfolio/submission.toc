@@ -19,11 +19,22 @@
 \contentsline {subsubsection}{\numberline {2.4.2}Threats to External Validity}{14}{subsubsection.2.4.2}%
 \contentsline {subsection}{\numberline {2.5}Discussion and Conclusion}{14}{subsection.2.5}%
 \contentsline {section}{\numberline {3}The Return of the Gen-Z Intern}{16}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Subtask 3a}{16}{subsection.3.1}%
-\contentsline {section}{\numberline {4}Task 4: Title Here}{17}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Subtask 4a}{17}{subsection.4.1}%
-\contentsline {section}{\numberline {A}Code}{19}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}Task 1 Code}{19}{subsection.A.1}%
-\contentsline {subsection}{\numberline {A.2}Task 2 Code}{26}{subsection.A.2}%
-\contentsline {subsection}{\numberline {A.3}Task 3 Code}{26}{subsection.A.3}%
-\contentsline {subsection}{\numberline {A.4}Task 4 Code}{26}{subsection.A.4}%
+\contentsline {subsection}{\numberline {3.1}EDA}{16}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Regression Adjustment}{16}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Matching}{17}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Propensity Score Estimation and Common Support}{17}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Propensity Score Matching}{17}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Mahalanobis Distance Matching}{18}{subsubsection.3.3.3}%
+\contentsline {subsection}{\numberline {3.4}Inverse Probability Weighting (IPW)}{18}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Augmented Probability Weighting (AIPW)}{18}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Double ML}{19}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Comparison and Discussion}{19}{subsection.3.7}%
+\contentsline {subsubsection}{\numberline {3.7.1}Why do the estimates differ?}{19}{subsubsection.3.7.1}%
+\contentsline {subsubsection}{\numberline {3.7.2}DML}{20}{subsubsection.3.7.2}%
+\contentsline {section}{\numberline {4}Task 4: Title Here}{22}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Subtask 4a}{22}{subsection.4.1}%
+\contentsline {section}{\numberline {A}Code}{24}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Task 1 Code}{24}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Task 3 Code}{31}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Task 3 Code}{40}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Task 4 Code}{40}{subsection.A.4}%
