@@ -54,7 +54,7 @@
 \begin{document}
 
 % ── Title ──
-\title{Complete Portfolio}
+\title{Portfolio}
 \author{Jakob Sverre Alexandersen\\
 GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments}
 \maketitle
@@ -65,7 +65,7 @@ GRA4158 Marketing and the Analysis of Experiments and Quasi-Experiments}
     This portfolio presents solutions to four assignments covering 
     the design and analysis of experiments and quasi-experiments in 
     marketing research. Task~1 estimates the causal effect of digital advertising on purchase conversion using a randomized experiment, addressing non-compliance through IV estimation and assessing ad profitability. Task~2 explores a potential study that examines whether companies can relax their marketing budgets by utilizing more ``normal'' people instead of ``high-maintenance'' influencers to promote their product, and thus attracting more customers.
-    Task~3 examines... Task~4 investigates...
+    Task~3 estimates the causal effect of a discount on sales from an observational dataset, employing regression adjustment, propensity score matching, Mahalanobis distance matching, and inverse probability weighting under the conditional independence assumption. Task~4 evaluates the impact of a new in-store marketing strategy on weekly product sales using panel data from 21 stores, applying pre-post analysis, two-way fixed effects, difference-in-differences, synthetic control, and synthetic DID to a single treated store.
 
     Please note that all code is included in the appendix, and will be referenced throughout the paper. 
 \end{abstract}
@@ -602,10 +602,348 @@ We recommend the manager not assume that discounts drive incremental revenue bas
 
 
 \newpage
-\section{Task 4: Title Here}
+\section{Task 4: The sales analyst}
+In this task, we evaluate the causal impact of a new in-store marketing strategy on weekly sales of two products at store 109, a single treated store in a multi-store retail chain. A randomized design was not feasible, so we rely on observational panel data covering 21 stores across 104 weeks (2024--2025). The treatment began in week 26 of 2025 (weekind 78). We apply five progressively more sophisticated causal inference methods: pre-post analysis, two-way fixed effects, difference-in-differences, synthetic control, and synthetic DID, and compare their estimates to assess the strategy's effectiveness. All code is provided in Appendix~\ref{app:task_four}.
 
-\subsection{Subtask 4a}
-Your content here...
+
+\subsection{Exploratory Data Analysis}
+We start off with some EDA:
+\begin{verbatim}
+    >  -- p1sales --
+    >                 mean    std  count
+    > Treated Post                      
+    > 0       0     383.05  69.16   1540
+    >         1     387.32  82.97    540
+    > 1       0     324.36  14.40     77
+    >         1     360.85  17.05     27
+    > 
+    > -- p2sales --
+    >                 mean     std  count
+    > Treated Post                       
+    > 0       0     463.18  112.56   1540
+    >         1     467.91  122.22    540
+    > 1       0     380.49   28.59     77
+    >         1     362.96   38.01     27
+\end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{2026-04-15-11-56-16.png}
+\end{figure}
+For product 1, we notice that store 109 has much lower sales than control stores (around 320 vs. just over 380 pre-treatment). The levels are very different. Pre-treatment trends look roughly parallel in the plot, both lines are relatively flat with similar fluctuating patterns. Post-treatment, store 109 jumps to around 360 (a roughly +40 unit increase), while control barely moves. This hints at a positive treatment effect for product 1
+
+For product 2, store 109 is yet again below the control group ($\sim 375 $ vs. 460 pre-treatment). Post-treatment, store 109 \textit{drops} to much lower levels, while control is flat. This suggests a possible negative effect on product 2 -- or at least no positive effect. The pre-treatment trends are noisier, and the spikes in store 109 look like promotion-driven jumps, which is worth controlling for. The large level differences are fine for DID (which relies on trends, not levels), but they do motivate synthetic control as a potentially better approach. 
+\newpage
+\subsection{Pre-Post Analysis (store 109 only)}
+This is the simplest analysis, where we just look at store 109 before vs. after, controlling for covariates. It is biased (no counterfactual), but it is a starting point. 
+
+\begin{verbatim}
+    > p1sales
+    > Formula: p1sales ~ post + p1price + p1prom + compind
+    >                 Coef.  Std.Err.          z          P>|z|      [0.025  \
+    > Intercept  282.676750  5.631702  50.193843   0.000000e+00  271.638817   
+    > post        33.689387  1.544682  21.809924  1.867844e-105   30.661867   
+    > p1price     -0.470422  2.408546  -0.195313   8.451476e-01   -5.191086   
+    > p1prom      35.286051  2.354490  14.986706   8.969257e-51   30.671335   
+    > compind    103.459690  2.061203  50.193843   0.000000e+00   99.419807   
+    > 
+    >             0.975]  
+    > Intercept  293.714682  
+    > post        36.716907  
+    > p1price      4.250243  
+    > p1prom      39.900766  
+    > compind    107.499574  
+    > 
+    > Pre-post treatment effect estimate: 33.69 (p=0.0000)
+    > p2sales
+    > Formula: p2sales ~ post + p2price + p2prom + compind
+    >                 Coef.  Std.Err.          z         P>|z|      [0.025  \
+    > Intercept  335.448499  5.845090  57.389790  0.000000e+00  323.992332   
+    > post       -29.710065  2.104538 -14.117145  2.978156e-45  -33.834883   
+    > p2price     -4.068014  2.363620  -1.721094  8.523370e-02   -8.700624   
+    > p2prom      78.255946  1.972232  39.678879  0.000000e+00   74.390443   
+    > compind    122.774150  2.139303  57.389790  0.000000e+00  118.581194   
+    >   
+    >             0.975]  
+    > Intercept  346.904665  
+    > post       -25.585247  
+    > p2price      0.564597  
+    > p2prom      82.121449  
+    > compind    126.967107  
+    > 
+    > Pre-post treatment effect estimate: -29.71 (p=0.0000)
+\end{verbatim}
+The naive pre-post estimate shows a +33.7 unit increase in weekly sales after treatment (highly significant). Promotions also have a large effect (+35.3), while price has essentially no effect in this single-store sample. The competition index (\verb|compind|) is large but that is because it is on a different scale (0-1). 
+
+The pre-post estimate shows a -29.7 unit decrease; the marketing strategy appears to have hurt product 2 sales. Promotions have a huge effect (+78.3) and price is marginally negative ($p = 0.085$). 
+
+There is one key caveat, and that is that this analysis has no counterfactual. Any time trend common to all stores is absored into the post coefficient. That is why we need DID and synthetic control.
+\newpage 
+\subsection{Two-Way Fixed Effects Panel Model}
+This uses all stores with store and time fixed effects. The \verb|treat\_post| coefficient is the treatment effect, controlling for anything constant within a store (store FE) and anything common across stores in a given week (time FE):
+\begin{verbatim}
+    > -- p1sales --
+    > Variable              Coef   Std.Err.    P-value
+    > ----------------------------------------
+    > treat_post          29.979      4.256     0.0000
+    > p1price             -2.475      0.891     0.0055
+    > p1prom              37.590      1.470     0.0000
+    > 
+    > TWFE treatment effect: 29.98 (p=0.0000)
+    > R-squared: 0.9773
+    > N = 2184
+    > 
+    > -- p2sales --
+    > Variable              Coef   Std.Err.    P-value
+    > ----------------------------------------
+    > treat_post         -34.291      4.699     0.0000
+    > p2price             -2.951      0.861     0.0006
+    > p2prom              89.424      4.538     0.0000
+    > 
+    > TWFE treatment effect: -34.29 (p=0.0000)
+    > R-squared: 0.9870
+    > N = 2184
+\end{verbatim}
+
+For product 1, TWFE estimates a treatment effect of +29.98 units ($p< 0.001 $). This is slightly smaller than the naive pre-post (+33.7), which makes sense because the TWFE controls for time-varying shocks common to all stores via week FE. Very high $R^2 $ (0.977) means the FEs and covariates explain almost all variation. Price now shows a significant negative effect (-2.48, $p=0.006 $) since we have cross-store variation to identify it. 
+
+For product 2, TWFE estimates -34.29 units ($p< 0.001 $). The marketing strategy appears to have \textit{reduced} product 2 sales even after controlling for store and time effects. Promotions have a massive effect (+89.42), and price is significantly negative (-2.95). 
+
+With only 21 stores (clusters), cluster-robust SEs can be unreliable. We'll keep this in mind when comparing across methods. The story is consistent so far: positive for P1, negative for P2. Let us commence explicit DID framing. 
+\newpage
+\subsection{Difference-in-Differences}
+First we run a simple $2\times 2 $ DID (collapsed means), then a panel DID regression:
+\begin{verbatim}
+    > -- 3a: simple 2x2 did (raw means) --
+    >     p1sales:
+    >     Treated:  pre=324.36  post=360.85  diff=+36.49
+    >     Control:  pre=383.05   post=387.32   diff=+4.27
+    >     DID estimate: +32.22
+    > 
+    >     p2sales:
+    >     Treated:  pre=380.49  post=362.96  diff=-17.53
+    >     Control:  pre=463.18   post=467.91   diff=+4.73
+    >     DID estimate: -22.26
+    > 
+    > 
+    > -- 3b: did regression (w covariates) --
+    >     p1sales
+    >     Variable              Coef    Std.Err    P-value
+    >     -----------------------------------------------
+    >     treated            -33.633      1.109     0.0000
+    >     post                 3.538      4.066     0.3842
+    >     treat_post          29.974      4.138     0.0000
+    >     p1price             -2.585      0.800     0.0012
+    >     p1prom              37.619      1.457     0.0000
+    > 
+    >     DID treatment effect: 29.97 (p=0.0000)
+    >     R-squared: 0.9767, N = 2184
+    > 
+    >     p2sales
+    >     Variable              Coef    Std.Err    P-value
+    >     -----------------------------------------------
+    >     treated            -18.371      1.136     0.0000
+    >     post                 2.905      4.167     0.4857
+    >     treat_post         -34.354      4.570     0.0000
+    >     p2price             -2.881      0.739     0.0001
+    >     p2prom              89.915      4.820     0.0000
+    > 
+    >     DID treatment effect: -34.35 (p=0.0000)
+    >     R-squared: 0.9864, N = 2184
+\end{verbatim}
+
+The simple $2\times 2 $ DID (raw means) shows a P1 increase of +32.22. Store 109 gained 36.5 units while control gained only 4.3, so the net treatment effect is +32.2. It shows a P2 decrease of -22.26, so store 109 dropped 17.5 while control gained 4.7, so the net effect is -22.3. 
+
+The DID regression with control variates shows a P1 increase of +29.97 ($p<0.001 $), which is very close to the TWFE estimate (29.98), as expected. P2 displays a decrease of -34.35 ($p<0.001 $), which is also very close to the TWFE (-34.29). 
+
+The \verb|post| coefficient is small and insignificant in both regressions (3.5 and 2.9), meaning that there is no strong common time trend beyond what covariates capture, which is a good sign. The \verb|treated| coefficient shows store 109 is structurally lower in sales (-33.6 for P1, -18.4 for P2). 
+
+Notice the raw $2\times 2 $ DID differs from the regression DID because the regression controls for prices and promotions. The regression version is more trustworthy. 
+
+One key concern for DID is that the parallel trends plot showed store 109 is at a very different level from the control mean, and there are only 20 control stores being averaged equally. Some stores may be much better counterfactuals than others. This motivates the synthetic control approach. 
+
+\subsection{Synthetic Control Method}
+This constructs a weighted combination of control stores that best matches store 109's pre-treatment sales trajectory. It is ideal here because we have 1 treated unit and a rich donor pool. 
+
+All stores get assigned a donor weight of 0.05 for both P1 and P2 sales. For P1 sales, we get the following results: 
+\begin{verbatim}
+    > Pre-treatment RMSE: 60.19
+    > ATT (avg post-treatment effect): -26.47
+    > Post-period effects by week: min=-51.1, max=4.3  
+\end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-14-07-51.png}
+\end{figure}
+
+And for P2 sales, we get these results: 
+\begin{verbatim}
+    > Pre-treatment RMSE: 87.43
+    > ATT (avg post-treatment effect): -104.94
+    > Post-period effects by week: min=-153.9, max=-36.9  
+\end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-14-08-27.png}
+\end{figure}
+
+The SCM completely failed here. Every donor got equal weight (1/20 = 0.05). The optimizer just returned the uniform average because it couldn't find \textit{any} weighted combination of control stores that matches store 109's level. The pre-treatment RMSE is enormous (60 and 87), and the plots show the synthetic sits way above the actual.
+
+The reason why is because store 109 has much lower sales than \textit{all} control stores. Since SCM weights are constrained to [0, 1] and sum to 1, the synthetic can never go below the lowest control store. Store 109 is outside the donor pool's range. 
+
+The fix here is a demeaned SCM, as discussed by \textcite{ferman2021synthetic}. We subtract each store's pre-treatment mean, match on the \textit{trajectories/patterns} instead of levels, then add back the treated store's mean:
+\newpage
+\subsection{Demeaned SCM}
+
+The demeaned SCM performs beautifully: 
+\begin{verbatim}
+    > ==================================================
+    > p1sales
+    > ==================================================
+    >   
+    > Donor weights (non-zero, >1%):
+    >     Store 110: 0.4333
+    >     Store 111: 0.4332
+    >     Store 113: 0.0393
+    >     Store 114: 0.0231
+    >     Store 118: 0.0256
+    >     Store 119: 0.0394
+    > 
+    > Pre-treatment RMSE: 4.05
+    > ATT (avg post-treatment effect): 17.66
+    > Post-period effects by week: min=1.3, max=23.2
+    > 
+    > ==================================================
+    > p2sales
+    > ==================================================
+    > 
+    > Donor weights (non-zero, >1%):
+    >     Store 103: 0.0254
+    >     Store 105: 0.0300
+    >     Store 110: 0.3510
+    >     Store 111: 0.4430
+    >     Store 114: 0.0175
+    >     Store 117: 0.0563
+    >     Store 119: 0.0177
+    >     Store 120: 0.0364
+    >     Store 121: 0.0138
+    > 
+    > Pre-treatment RMSE: 4.13
+    > ATT (avg post-treatment effect): -46.00
+    > Post-period effects by week: min=-58.6, max=-1.5
+\end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-14-24-42.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-14-24-52.png}
+\end{figure}
+The RMSE drops from 60/87 to 4.05/4.13, and the synthetic now tracks store 109 almost perfectly in the pre-period. The plots confirm this: the blue dashed line hugs the red line closely before week 78. 
+
+Both products lean heavily on stores 110 and 111 ($\sim 87\% $ combined weight for P1, $\sim 79\% $ for P2). These are the stores whose fluctuation patterns most resemble store 109. The remaining weight is spread thinly across a few others. 
+
+P1 has an ATT of +17.66, which is positive but notably smaller than DID (+30.0) and pre-post (+33.7). Every single post-treatment week shows a positive effect (min=+1.3), so the effect is consistent. The SCM suggests a more modest uplift. 
+
+P2 has an ATT of -46.00, which is even more negative than DID (-34.3). Every post-treatment week is negative (max=-1.5). The green gap in the plot is large and persistent. 
+
+The reason why SCM gives different numbers than DID is because DID uses all 20 control stores equally (via the parallel trends assumption). SCM found that stores 110 and 111 are the best counterfactuals. If those stores had different trajectories from the average control store in the post-period, that explains the divergence. The SCM is likely more credible here because it builds a tailored counterfactual rather than assuming all stores trend identically. 
+
+\subsection{Synthetic DID}
+
+SDID \parencite{arkhangelsky2021synthetic} combines the best of both worlds: it reweights both \textit{units} (like SCM) and \textit{time periods} (like DID). This makes it more robust when neither pure parallel trends nor pure SCM fit holds perfectly.
+\begin{verbatim}
+    > p1sales
+    > sigma_hat: 22.81, zeta: 51.98
+    > omega_0: -85.68
+    > donor weights >1%:
+    >     store 101: 0.0309
+    >     store 102: 0.0309
+    >     store 103: 0.0309
+    >     store 104: 0.0309
+    >     store 105: 0.0311
+    >     store 106: 0.0309
+    >     store 107: 0.0281
+    >     store 108: 0.0281
+    >     store 110: 0.0337
+    >     store 111: 0.4667
+    >     store 112: 0.0281
+    >     store 113: 0.0313
+    >     store 114: 0.0281
+    >     store 115: 0.0281
+    >     store 116: 0.0281
+    >     store 117: 0.0281
+    >     store 118: 0.0309
+    >     store 119: 0.0309
+    >     store 120: 0.0294
+    >     store 121: 0.0281
+    > lambda_0: 1.96
+    > non-uniform time weights: 19 of 77
+    > last 10 pre-period weight: 0.3840
+    > delta_treated: 27.27, delta_control: 7.73
+    > tau: 19.54
+
+    > p2sales
+    > sigma_hat: 48.99, zeta: 111.68
+    > omega_0: -87.17
+    > donor weights >1%:
+    >     store 101: 0.0383
+    >     store 102: 0.0350
+    >     store 103: 0.0429
+    >     store 104: 0.0411
+    >     store 105: 0.0390
+    >     store 106: 0.0389
+    >     store 107: 0.0334
+    >     store 108: 0.0366
+    >     store 110: 0.1065
+    >     store 111: 0.1213
+    >     store 112: 0.0444
+    >     store 113: 0.0496
+    >     store 114: 0.0467
+    >     store 115: 0.0437
+    >     store 116: 0.0429
+    >     store 117: 0.0447
+    >     store 118: 0.0433
+    >     store 119: 0.0594
+    >     store 120: 0.0546
+    >     store 121: 0.0376
+    > lambda_0: 4.33
+    > non-uniform time weights: 4 of 77
+    > last 10 pre-period weight: 0.2331
+    > delta_treated: -29.89, delta_control: 7.00
+    > tau: -36.89
+\end{verbatim}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-15-05-51.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{2026-04-15-15-06-02.png}
+\end{figure}
+The intercept is doing its job: \verb|omega_0 = -85.68| (P1) and \verb|-87.17| (P2) absorbs the $\sim 60 - 80 $ unit level gap between store 109 and the control stores. 
+
+For P1 unit weights, store 111 dominates at 0.47, with the rest at around 0.03. This is somehwat concentrated but less extreme than the demeaned SCM (which had stores 110 and 111 at 0.87 combined). The regularization intentionally spreads weight more evenly, and this is by design in SDID: as \verb|zeta| grows, SDID interpolates between SCM (concentrated weights) and DID (uniform weights). 
+
+The P2 unit weights are all nearly uniform (0.03 - 0.12). This is because \verb|sigma_hat| is much higher for P2 (48.99 vs. 22.81) due to those large promotion-driven spikes, which inflates \verb|zeta| to 111.68. High regularization pushes SDID towards DID. This is actually the correct behavior; when the outcome series is noisy, SDID trusts the DID averaging more than the SCM matching. 
+
+For P1, 38\% of the weights is on the last 10 pre-periods, meaning SDID upweights recent history. For P2, only 23\%, which again is more regularized due to noise.
+
+The demeaned SCM implementation produced the best pre-treatment fit (RMSE $\sim 4 $). However, one thing worth noting is that we matched only on \textit{outcome trajectories}, not on covariates. The classical Abadie et al. approach also matches on predictor variables. Since our fit is already excellent, adding covariates would not change much. 
+
+\subsection{Which methods should we trust most?}
+
+The pre-post analysis (Section 4.1) is the weakest. There is no counterfactual, so any common time trend gets baked into the estimate. It is useful only as a baseline. DID/TWFE (Sections 4.2 and 4.3) are the workhorses. The DID regression and TWFE give nearly identical estimates ($\sim +30 / -34$) because they are algebraically equivalent when you include store + time FE. The parallel trends assumption is somewhat supported by the pre-treatment plots (both P1 and P2 show roughly parallel movement), but the \textit{level gap} between store 109 and the control mean is large. DID assumes all 20 control stores contribute equally to the counterfactual, which is crude. 
+
+The standard SCM (Section 4.4) failed due to the convex hull problem, but the demeaned SCM (Section 4.5) is arguably the most credible method for this setting. With only 1 treated unit, SCM's strength, which is building a tailored counterfactual from the best-matching donors, is exactly what we need. The pre-treatment fit was excellent (RMSE $\sim 4$), and the weights concentrated on stores 110 and 111, which track store 109's fluctuation patterns closely. The lower estimates (+18 for P1, $\sim -46$ for P2) suggest that the DID methods may be biased because the average control store is not a good counterfactual for store 109. 
+
+SDID (Section 4.6) sits between DID and SCM by design. For P1, the weights concentrated on store 111 (similar to SCM), giving +19.5. For P2, high noise from promotion spikes inflated the regularization, pushing weights toward uniform (i.e., towards DID), giving $-36.9$. SDID's advantage is its double-robustness: it is consistent if \textit{either} the parallel trends or the SCM fit holds. 
+
+Therefore we would recommend emphasizing the SCM and SDID estimates as the primary findings, while keeping DID as a robustness check. The SCM pre-treatment fit provides strong visual evidence of counterfactual validity. 
+
+There are some challenges and limitations to discuss. There is only one single treated unit, where all inference is based on one store. There is no way to assess treatment effect heterogeneity across stores. There are only 21 clusters for cluster-robust SEs in DID. Standard errors may be unreliable. SCM has no standard inference; we could run placebo tests (apply SCM to each control store pretending it's treated), but we did not. The post-period is relatively short at just 27 weeks, so it is hard to know if the effect is actually persistent. The promotion spikes in P2 create noise that complicates SCM matching and inflates SDID regularization. There are no spillovers assumed, so if the marketing strategy in store 109 affected nearby stores, the control group is contaminated, which is a SUTVA violation. Finally, store 109 is an outlier in sales levels. It is already well below all control stores, raising questions about external validity. 
+
+Our recommendations to management, using the SCM/SDID estimates (which we argue are the most credible), is that the strategy lifts P1 sales by approximately +18 to +20 units per week. However, it also reduces P2 sales by approximately -37 to -46 units per week, so the net effect is negative. Before rolling out chain-wide, management should investigate \textit{why} P2 declines and whether the strategy can be modified to avoid cannibalization. A proper randomized trial across multiple stores would provide definitive evidence with valid statistical inference. 
 
 % ══════════════════════════════════════
 %   REFERENCES
@@ -1470,17 +1808,660 @@ plt.show()
     > Gradient Boosting             1.00     5.94   [-10.65, 12.65]
 \end{verbatim}
 
-\subsection{Task 3 Code}
-\begin{lstlisting}
-# Your Task 3 code here
-\end{lstlisting}
-
 \subsection{Task 4 Code}
+\label{app:task_four}
 \begin{lstlisting}
-# Your Task 4 code here
+    import pandas as pd 
+    import numpy as np
+    import matplotlib.pyplot as plt 
+    import warnings 
+    warnings.filterwarnings('ignore')
 \end{lstlisting}
+\begin{lstlisting}
+    df = pd.read_csv('t4.csv', sep=';')
+    df.columns = df.columns.str.strip().str.replace('"', '')
+    df['storeNum'] = df['storeNum'].astype(str).str.replace('"', '').astype(int)
 
-% Or if you prefer to import files directly:
-% \lstinputlisting[caption={Task 1 Code}]{code/task1.R}
+    df['treated'] = (df['storeNum'] == 109).astype(int)
+    df['post'] = (df['Weekind'] >= 78).astype(int)
+    df['treat_post'] = df['treated'] * df['post']
 
+    print("Shape:", df.shape)
+    print("Stores:", sorted(df["storeNum"].unique()))
+    print("Weeks:", df["Weekind"].min(), "to", df["Weekind"].max())
+    print("Treatment store 109, post period: weekind >= 78")
+\end{lstlisting}
+\begin{verbatim}
+    > Shape: (2184, 18)
+    > Stores: [np.int64(101), np.int64(102), np.int64(103), np.int64(104), np.int64(105), np.int64(106), np.int64(107), np.int64(108), np.int64(109), np.int64(110), np.int64(111), np.int64(112), np.int64(113), np.int64(114), np.int64(115), np.int64(116), np.int64(117), np.int64(118), np.int64(119), np.int64(120), np.int64(121)]
+    > Weeks: 1 to 104
+    > Treatment store 109, post period: weekind >= 78
+\end{verbatim}
+\begin{lstlisting}
+    for prod in ['p1sales', 'p2sales']: 
+        print(f'\n-- {prod} --')
+        table = df.groupby(['treated', 'post'])[prod].agg(['mean', 'std', 'count'])
+        table.index = table.index.set_names(['Treated', 'Post'])
+        print(table.round(2))
+\end{lstlisting}
+\begin{verbatim}
+    > -- p1sales --
+    >                 mean    std  count
+    > Treated Post                      
+    > 0       0     383.05  69.16   1540
+    >         1     387.32  82.97    540
+    > 1       0     324.36  14.40     77
+    >         1     360.85  17.05     27
+    > 
+    > -- p2sales --
+    >                 mean     std  count
+    > Treated Post                       
+    > 0       0     463.18  112.56   1540
+    >         1     467.91  122.22    540
+    > 1       0     380.49   28.59     77
+    >         1     362.96   38.01     27
+\end{verbatim}
+\begin{lstlisting}
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    for i, prod in enumerate(["p1sales", "p2sales"]):
+        treated_ts = df[df["treated"] == 1].groupby("Weekind")[prod].mean()
+        control_ts = df[df["treated"] == 0].groupby("Weekind")[prod].mean()
+        
+        axes[i].plot(control_ts.index, control_ts.values, label="Control (mean)", color="steelblue")
+        axes[i].plot(treated_ts.index, treated_ts.values, label="Store 109 (treated)", color="tomato")
+        axes[i].axvline(x=78, color="black", linestyle="--", label="Treatment (week 78)")
+        axes[i].set_title(f"Parallel Trends: {prod}")
+        axes[i].set_xlabel("Weekind")
+        axes[i].set_ylabel("Sales")
+        axes[i].legend()
+    plt.tight_layout()
+
+    plt.show()
+    print("\nParallel trends plot saved.")
+\end{lstlisting}
+\begin{lstlisting}
+    import statsmodels.formula.api as smf
+
+    store109 = df[df['treated'] == 1].copy()
+
+    for prod in ['p1sales', 'p2sales']: 
+        formula = f'{prod} ~ post + {prod.replace("sales", "price")} + {prod.replace("sales", "prom")} + compind'
+        model = smf.ols(formula, data=store109).fit(cov_type='HC1')
+        print(f'{prod}\nFormula: {formula}')
+        print(f'{model.summary2().tables[1]}')
+        print(f'\nPre-post treatment effect estimate: {model.params["post"]:.2f} (p={model.pvalues["post"]:.4f})')
+\end{lstlisting}
+\begin{verbatim}
+    > p1sales
+    > Formula: p1sales ~ post + p1price + p1prom + compind
+    >                 Coef.  Std.Err.          z          P>|z|      [0.025  \
+    > Intercept  282.676750  5.631702  50.193843   0.000000e+00  271.638817   
+    > post        33.689387  1.544682  21.809924  1.867844e-105   30.661867   
+    > p1price     -0.470422  2.408546  -0.195313   8.451476e-01   -5.191086   
+    > p1prom      35.286051  2.354490  14.986706   8.969257e-51   30.671335   
+    > compind    103.459690  2.061203  50.193843   0.000000e+00   99.419807   
+    > 
+    >             0.975]  
+    > Intercept  293.714682  
+    > post        36.716907  
+    > p1price      4.250243  
+    > p1prom      39.900766  
+    > compind    107.499574  
+    > 
+    > Pre-post treatment effect estimate: 33.69 (p=0.0000)
+    > p2sales
+    > Formula: p2sales ~ post + p2price + p2prom + compind
+    >                 Coef.  Std.Err.          z         P>|z|      [0.025  \
+    > Intercept  335.448499  5.845090  57.389790  0.000000e+00  323.992332   
+    > post       -29.710065  2.104538 -14.117145  2.978156e-45  -33.834883   
+    > p2price     -4.068014  2.363620  -1.721094  8.523370e-02   -8.700624   
+    > p2prom      78.255946  1.972232  39.678879  0.000000e+00   74.390443   
+    > compind    122.774150  2.139303  57.389790  0.000000e+00  118.581194   
+    > 
+    >             0.975]  
+    > Intercept  346.904665  
+    > post       -25.585247  
+    > p2price      0.564597  
+    > p2prom      82.121449  
+    > compind    126.967107  
+    > 
+    > Pre-post treatment effect estimate: -29.71 (p=0.0000)
+\end{verbatim}
+\begin{lstlisting}
+    for prod in ['p1sales', 'p2sales']:
+        price = prod.replace('sales', 'price')
+        prom = prod.replace('sales', 'prom')
+
+        formula = f'{prod} ~ treat_post + {price} + {prom} + C(storeNum) + C(Weekind)'
+        model = smf.ols(formula, data=df).fit(cov_type='cluster', cov_kwds={'groups' : df['storeNum']})
+        print(f'\n-- {prod} --')
+        key_vars = ['treat_post', price, prom]
+        print(f'{"Variable":<15} {"Coef":>10} {"Std.Err.":>10} {"P-value":>10}')
+        print('-'*40)
+        for var in key_vars:
+            print(f"{var:<15} {model.params[var]:>10.3f} {model.bse[var]:>10.3f} {model.pvalues[var]:>10.4f}")
+
+        print(f"\nTWFE treatment effect: {model.params['treat_post']:.2f} (p={model.pvalues['treat_post']:.4f})")
+        print(f"R-squared: {model.rsquared:.4f}")
+        print(f"N = {int(model.nobs)}")
+\end{lstlisting}
+\begin{verbatim}
+    > -- p1sales --
+    > Variable              Coef   Std.Err.    P-value
+    > ----------------------------------------
+    > treat_post          29.979      4.256     0.0000
+    > p1price             -2.475      0.891     0.0055
+    > p1prom              37.590      1.470     0.0000
+    > 
+    > TWFE treatment effect: 29.98 (p=0.0000)
+    > R-squared: 0.9773
+    > N = 2184
+    > 
+    > -- p2sales --
+    > Variable              Coef   Std.Err.    P-value
+    > ----------------------------------------
+    > treat_post         -34.291      4.699     0.0000
+    > p2price             -2.951      0.861     0.0006
+    > p2prom              89.424      4.538     0.0000
+    > 
+    > TWFE treatment effect: -34.29 (p=0.0000)
+    > R-squared: 0.9870
+    > N = 2184
+\end{verbatim}
+\begin{lstlisting}
+    print(f'\n -- 3a: simple 2x2 did (raw means) --')
+    for prod in ['p1sales', 'p2sales']: 
+        means = df.groupby(['treated', 'post'])[prod].mean()
+
+        pre_treat = means[(1, 0)]
+        post_treat = means[(1, 1)]
+        pre_ctrl = means[(0, 0)]
+        post_ctrl = means[(0, 1)]
+
+        did = (post_treat - pre_treat) - (post_ctrl - pre_ctrl)
+        
+        print(f'  {prod}:')
+        print(f'    Treated:  pre={pre_treat:.2f}  post={post_treat:.2f}  diff={post_treat-pre_treat:+.2f}')
+        print(f'    Control:  pre={pre_ctrl:.2f}   post={post_ctrl:.2f}   diff={post_ctrl-pre_ctrl:+.2f}')
+        print(f'    DID estimate: {did:+.2f}\n')
+
+    print(f'\n -- 3b: did regression (w covariates) --')
+    for prod in ['p1sales', 'p2sales']:
+        price = prod.replace('sales', 'price')
+        prom = prod.replace('sales', 'prom')
+        formula = f'{prod} ~ treated + post + treat_post + {price} + {prom} + compind + storesize + citysize'
+        model = smf.ols(formula, data=df).fit(cov_type='cluster', cov_kwds={'groups' : df['storeNum']})
+        print(f'    {prod}')
+        key_vars = ['treated', 'post', 'treat_post', price, prom]
+        print(f"  {'Variable':<15} {'Coef':>10} {'Std.Err':>10} {'P-value':>10}")
+        print(f"  {'-'*47}")
+        for var in key_vars:
+            print(f"  {var:<15} {model.params[var]:>10.3f} {model.bse[var]:>10.3f} {model.pvalues[var]:>10.4f}")
+        print(f"\n  DID treatment effect: {model.params['treat_post']:.2f} (p={model.pvalues['treat_post']:.4f})")
+        print(f"  R-squared: {model.rsquared:.4f}, N = {int(model.nobs)}\n")
+\end{lstlisting}
+\begin{verbatim}
+    > -- 3a: simple 2x2 did (raw means) --
+    > p1sales:
+    > Treated:  pre=324.36  post=360.85  diff=+36.49
+    > Control:  pre=383.05   post=387.32   diff=+4.27
+    > DID estimate: +32.22
+    > 
+    > p2sales:
+    > Treated:  pre=380.49  post=362.96  diff=-17.53
+    > Control:  pre=463.18   post=467.91   diff=+4.73
+    > DID estimate: -22.26
+    > 
+    > 
+    > -- 3b: did regression (w covariates) --
+    > p1sales
+    > Variable              Coef    Std.Err    P-value
+    > -----------------------------------------------
+    > treated            -33.633      1.109     0.0000
+    > post                 3.538      4.066     0.3842
+    > treat_post          29.974      4.138     0.0000
+    > p1price             -2.585      0.800     0.0012
+    > p1prom              37.619      1.457     0.0000
+    > 
+    > DID treatment effect: 29.97 (p=0.0000)
+    > R-squared: 0.9767, N = 2184
+    > 
+    > p2sales
+    > Variable              Coef    Std.Err    P-value
+    > -----------------------------------------------
+    > treated            -18.371      1.136     0.0000
+    > post                 2.905      4.167     0.4857
+    > treat_post         -34.354      4.570     0.0000
+    > p2price             -2.881      0.739     0.0001
+    > p2prom              89.915      4.820     0.0000
+    > 
+    > DID treatment effect: -34.35 (p=0.0000)
+    > R-squared: 0.9864, N = 2184
+\end{verbatim}
+\begin{lstlisting}
+    from scipy.optimize import minimize 
+
+    control_stores = [s for s in df['storeNum'].unique() if s != 109]
+    pre_periods = df[df['post'] == 0]['Weekind'].unique()
+    post_periods = df[df['post'] == 1]['Weekind'].unique()
+
+    for prod in ['p1sales', 'p2sales']:
+        print(f'\n{"="*40}')
+        print(f'{prod}')
+        print(f'{"="*40}')
+
+        pivot = df.pivot_table(index='Weekind', columns='storeNum', values=prod)
+        Y_treat_pre = pivot.loc[pre_periods, 109].values
+        Y_treat_post = pivot.loc[post_periods, 109].values
+        Y_control_pre = pivot.loc[pre_periods, control_stores].values
+        Y_control_post = pivot.loc[post_periods, control_stores].values
+
+        n_control = len(control_stores)
+
+        #obj func
+        def objective(w): 
+            synthetic_pre = Y_control_pre @ w
+            return np.sum((Y_treat_pre - synthetic_pre) ** 2)
+
+        constraints = {'type' : 'eq', 'fun' : lambda w: np.sum(w) - 1}
+        bounds = [(0, 1)] * n_control
+        w0 = np.ones(n_control) / n_control
+        result = minimize(objective, w0, method='SLSQP', bounds=bounds, constraints=constraints, options={'maxiter' : 1_000, 'ftol' : 1e-12})
+        weights = result.x
+
+        synth_pre = Y_control_pre @ weights 
+        synth_post = Y_control_post @ weights 
+
+        pre_rmse = np.sqrt(np.mean((Y_treat_pre - synth_pre) ** 2))
+
+        effects = Y_treat_post - synth_post 
+        att = np.mean(effects)
+        print(f'\n  Donor weights (non-zero):')
+        for i, s in enumerate(control_stores):
+            if weights[i] > 0.01:
+                print(f'    Store {s}: {weights[i]:.4f}')
+        
+        print(f'\n  Pre-treatment RMSE: {pre_rmse:.2f}')
+        print(f'  ATT (avg post-treatment effect): {att:.2f}')
+        print(f'  Post-period effects by week: min={effects.min():.1f}, max={effects.max():.1f}')
+        # Plot
+        fig, ax = plt.subplots(figsize=(10, 5))
+        all_periods = sorted(np.concatenate([pre_periods, post_periods]))
+        actual = pivot.loc[all_periods, 109].values
+        synthetic = np.concatenate([synth_pre, synth_post])
+        
+        ax.plot(all_periods, actual, label="Store 109 (actual)", color="tomato")
+        ax.plot(all_periods, synthetic, label="Synthetic control", color="steelblue", linestyle="--")
+        ax.axvline(x=78, color="black", linestyle="--", alpha=0.7, label="Treatment (week 78)")
+        ax.fill_between(post_periods, Y_treat_post, synth_post, alpha=0.2, color="green", label="Treatment effect")
+        ax.set_title(f"Synthetic Control: {prod}")
+        ax.set_xlabel("Weekind")
+        ax.set_ylabel("Sales")
+        ax.legend()
+        plt.tight_layout()
+        plt.show()
+\end{lstlisting}
+\begin{verbatim}
+    > ========================================
+    > p1sales
+    > ========================================
+    > 
+    > Donor weights (non-zero):
+    >     Store 101: 0.0500
+    >     Store 102: 0.0500
+    >     Store 103: 0.0500
+    >     Store 104: 0.0500
+    >     Store 105: 0.0500
+    >     Store 106: 0.0500
+    >     Store 107: 0.0500
+    >     Store 108: 0.0500
+    >     Store 110: 0.0500
+    >     Store 111: 0.0500
+    >     Store 112: 0.0500
+    >     Store 113: 0.0500
+    >     Store 114: 0.0500
+    >     Store 115: 0.0500
+    >     Store 116: 0.0500
+    >     Store 117: 0.0500
+    >     Store 118: 0.0500
+    >     Store 119: 0.0500
+    >     Store 120: 0.0500
+    >     Store 121: 0.0500
+    > 
+    > Pre-treatment RMSE: 60.19
+    > ATT (avg post-treatment effect): -26.47
+    > Post-period effects by week: min=-51.1, max=4.3
+    > ========================================
+    > p2sales
+    > ========================================
+    > 
+    >   Donor weights (non-zero):
+    >     Store 101: 0.0500
+    >     Store 102: 0.0500
+    >     Store 103: 0.0500
+    >     Store 104: 0.0500
+    >     Store 105: 0.0500
+    >     Store 106: 0.0500
+    >     Store 107: 0.0500
+    >     Store 108: 0.0500
+    >     Store 110: 0.0500
+    >     Store 111: 0.0500
+    >     Store 112: 0.0500
+    >     Store 113: 0.0500
+    >     Store 114: 0.0500
+    >     Store 115: 0.0500
+    >     Store 116: 0.0500
+    >     Store 117: 0.0500
+    >     Store 118: 0.0500
+    >     Store 119: 0.0500
+    >     Store 120: 0.0500
+    >     Store 121: 0.0500
+    > 
+    >   Pre-treatment RMSE: 87.43
+    >   ATT (avg post-treatment effect): -104.94
+    >   Post-period effects by week: min=-153.9, max=-36.9    
+\end{verbatim}
+\begin{lstlisting}
+    control_stores = [s for s in df['storeNum'].unique() if s != 109]
+    pre_periods = df[df['post'] == 0]['Weekind'].unique()
+    post_periods = df[df['post'] == 1]['Weekind'].unique()
+
+    for prod in ['p1sales', 'p2sales']:
+        print(f"\n{'='*50}")
+        print(f"  {prod}")
+        print(f"{'='*50}")
+        
+        pivot = df.pivot_table(index="Weekind", columns="storeNum", values=prod)
+        
+        pre_means = pivot.loc[pre_periods].mean(axis=0)
+        pivot_dm = pivot - pre_means  # each store now centered at 0 in pre-period
+        
+        Y_treat_pre = pivot_dm.loc[pre_periods, 109].values
+        Y_treat_post = pivot_dm.loc[post_periods, 109].values
+        Y_control_pre = pivot_dm.loc[pre_periods, control_stores].values
+        Y_control_post = pivot_dm.loc[post_periods, control_stores].values
+        
+        n_control = len(control_stores)
+        
+        def objective(w):
+            synthetic_pre = Y_control_pre @ w
+            return np.sum((Y_treat_pre - synthetic_pre) ** 2)
+        
+        constraints = {"type": "eq", "fun": lambda w: np.sum(w) - 1}
+        bounds = [(0, 1)] * n_control
+        w0 = np.ones(n_control) / n_control
+        
+        result = minimize(objective, w0, method="SLSQP", bounds=bounds, constraints=constraints,
+                        options={"maxiter": 1000, "ftol": 1e-12})
+        weights = result.x
+        
+        synth_pre_dm = Y_control_pre @ weights
+        synth_post_dm = Y_control_post @ weights
+        
+        treated_pre_mean = pre_means[109]
+        synth_pre = synth_pre_dm + treated_pre_mean
+        synth_post = synth_post_dm + treated_pre_mean
+        
+        actual_pre = pivot.loc[pre_periods, 109].values
+        actual_post = pivot.loc[post_periods, 109].values
+        
+        pre_rmse = np.sqrt(np.mean((actual_pre - synth_pre) ** 2))
+        effects = actual_post - synth_post
+        att = np.mean(effects)
+        
+        print(f"\n  Donor weights (non-zero, >1%):")
+        for i, s in enumerate(control_stores):
+            if weights[i] > 0.01:
+                print(f"    Store {s}: {weights[i]:.4f}")
+        
+        print(f"\n  Pre-treatment RMSE: {pre_rmse:.2f}")
+        print(f"  ATT (avg post-treatment effect): {att:.2f}")
+        print(f"  Post-period effects by week: min={effects.min():.1f}, max={effects.max():.1f}")
+
+        # Plot
+        fig, ax = plt.subplots(figsize=(10, 5))
+        all_periods = sorted(np.concatenate([pre_periods, post_periods]))
+        actual_all = pivot.loc[all_periods, 109].values
+        synthetic_all = np.concatenate([synth_pre, synth_post])
+        
+        ax.plot(all_periods, actual_all, label="Store 109 (actual)", color="tomato")
+        ax.plot(all_periods, synthetic_all, label="Synthetic control (demeaned)", color="steelblue", linestyle="--")
+        ax.axvline(x=78, color="black", linestyle="--", alpha=0.7, label="Treatment (week 78)")
+        ax.fill_between(post_periods, actual_post, synth_post, alpha=0.2, color="green", label="Treatment effect")
+        ax.set_title(f"Demeaned Synthetic Control: {prod}")
+        ax.set_xlabel("Weekind")
+        ax.set_ylabel("Sales")
+        ax.legend()
+        plt.tight_layout()
+        plt.show()
+\end{lstlisting}
+\begin{verbatim}
+    > ==================================================
+    > p1sales
+    > ==================================================
+    > 
+    > Donor weights (non-zero, >1%):
+    >     Store 110: 0.4333
+    >     Store 111: 0.4332
+    >     Store 113: 0.0393
+    >     Store 114: 0.0231
+    >     Store 118: 0.0256
+    >     Store 119: 0.0394
+    > 
+    > Pre-treatment RMSE: 4.05
+    > ATT (avg post-treatment effect): 17.66
+    > Post-period effects by week: min=1.3, max=23.2
+    > 
+    > ==================================================
+    > p2sales
+    > ==================================================
+    > 
+    > Donor weights (non-zero, >1%):
+    >     Store 103: 0.0254
+    >     Store 105: 0.0300
+    >     Store 110: 0.3510
+    >     Store 111: 0.4430
+    >     Store 114: 0.0175
+    >     Store 117: 0.0563
+    >     Store 119: 0.0177
+    >     Store 120: 0.0364
+    >     Store 121: 0.0138
+    > 
+    > Pre-treatment RMSE: 4.13
+    > ATT (avg post-treatment effect): -46.00
+    > Post-period effects by week: min=-58.6, max=-1.5
+\end{verbatim}
+\begin{lstlisting}
+    control_stores = [s for s in df['storeNum'].unique() if s != 109]
+    pre_periods = sorted(df[df['post'] == 0]['Weekind'].unique())
+    post_periods = sorted(df[df['post'] == 1]['Weekind'].unique())
+    T_pre = len(pre_periods)
+    T_post = len(post_periods)
+    N_co = len(control_stores)
+
+    for prod in ['p1sales', 'p2sales']:
+        print(f'\n{prod}')
+
+        pivot = df.pivot_table(index='Weekind', columns='storeNum', values=prod)
+
+        Y_co_pre = pivot.loc[pre_periods, control_stores].values
+        Y_co_post = pivot.loc[post_periods, control_stores].values
+        Y_tr_pre = pivot.loc[pre_periods, 109].values
+        Y_tr_post = pivot.loc[post_periods, 109].values
+
+        dY = np.diff(pivot.loc[:, control_stores].values, axis=0)
+        sigma_hat = np.std(dY)
+        zeta = (1 * T_post) ** 0.25 * sigma_hat
+
+        print(f'  sigma_hat: {sigma_hat:.2f}, zeta: {zeta:.2f}')
+
+        def unit_obj(params):
+            intercept = params[0]
+            w = params[1:]
+            resid = intercept + Y_co_pre @ w - Y_tr_pre
+            return np.sum(resid**2) + zeta**2 * T_pre * np.sum(w**2)
+
+        cons_unit = [{'type': 'eq', 'fun': lambda p: np.sum(p[1:]) - 1}]
+        bounds_unit = [(None, None)] + [(0, 1)] * N_co
+        p0 = np.concatenate([[0.0], np.ones(N_co) / N_co])
+
+        res_unit = minimize(unit_obj, p0, method='SLSQP', bounds=bounds_unit,
+                            constraints=cons_unit, options={'maxiter': 2000, 'ftol': 1e-14})
+        omega_intercept = res_unit.x[0]
+        omega = res_unit.x[1:]
+
+        Y_co_post_mean = Y_co_post.mean(axis=0)
+
+        def time_obj(params):
+            intercept = params[0]
+            lam = params[1:]
+            resid = intercept + Y_co_pre.T @ lam - Y_co_post_mean
+            return np.sum(resid**2) + zeta**2 * N_co * np.sum(lam**2)
+
+        cons_time = [{'type': 'eq', 'fun': lambda p: np.sum(p[1:]) - 1}]
+        bounds_time = [(None, None)] + [(0, None)] * T_pre
+        p0_time = np.concatenate([[0.0], np.ones(T_pre) / T_pre])
+
+        res_time = minimize(time_obj, p0_time, method='SLSQP', bounds=bounds_time,
+                            constraints=cons_time, options={'maxiter': 2000, 'ftol': 1e-14})
+        lambda_intercept = res_time.x[0]
+        lam = res_time.x[1:]
+
+        delta_treated = Y_tr_post.mean() - lam @ Y_tr_pre
+        delta_control = omega @ Y_co_post.mean(axis=0) - lam @ (Y_co_pre @ omega)
+        tau_sdid = delta_treated - delta_control
+
+        print(f'  omega_0: {omega_intercept:.2f}')
+        print(f'  donor weights >1%:')
+        for i, s in enumerate(control_stores):
+            if omega[i] > 0.01:
+                print(f'    store {s}: {omega[i]:.4f}')
+
+        print(f'  lambda_0: {lambda_intercept:.2f}')
+        print(f'  non-uniform time weights: {np.sum(lam > 2.0/T_pre)} of {T_pre}')
+        print(f'  last 10 pre-period weight: {lam[-10:].sum():.4f}')
+        print(f'  delta_treated: {delta_treated:.2f}, delta_control: {delta_control:.2f}')
+        print(f'  tau: {tau_sdid:.2f}')
+
+        synth_post = (lam @ Y_tr_pre) + (Y_co_post @ omega - (lam @ Y_co_pre @ omega))
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        all_weeks = pre_periods + post_periods
+        ax.plot(all_weeks, np.concatenate([Y_tr_pre, Y_tr_post]),
+                label='Store 109 (actual)', color='tomato')
+        ax.plot(post_periods, synth_post,
+                label='SDID counterfactual', color='steelblue', linestyle='--')
+        ax.axvline(x=78, color='black', linestyle='--', alpha=0.7, label='Treatment (week 78)')
+        ax.fill_between(post_periods, Y_tr_post, synth_post, alpha=0.2, color='green',
+                        label='Treatment effect')
+        ax.set_title(f'Synthetic DID: {prod}')
+        ax.set_xlabel('Weekind')
+        ax.set_ylabel('Sales')
+        ax.legend()
+        plt.tight_layout()
+        plt.show()
+\end{lstlisting}
+\begin{verbatim}
+    > p1sales
+    > sigma_hat: 22.81, zeta: 51.98
+    > omega_0: -85.68
+    > donor weights >1%:
+    >     store 101: 0.0309
+    >     store 102: 0.0309
+    >     store 103: 0.0309
+    >     store 104: 0.0309
+    >     store 105: 0.0311
+    >     store 106: 0.0309
+    >     store 107: 0.0281
+    >     store 108: 0.0281
+    >     store 110: 0.0337
+    >     store 111: 0.4667
+    >     store 112: 0.0281
+    >     store 113: 0.0313
+    >     store 114: 0.0281
+    >     store 115: 0.0281
+    >     store 116: 0.0281
+    >     store 117: 0.0281
+    >     store 118: 0.0309
+    >     store 119: 0.0309
+    >     store 120: 0.0294
+    >     store 121: 0.0281
+    > lambda_0: 1.96
+    > non-uniform time weights: 19 of 77
+    > last 10 pre-period weight: 0.3840
+    > delta_treated: 27.27, delta_control: 7.73
+    > tau: 19.54
+    > 
+    > p2sales
+    > sigma_hat: 48.99, zeta: 111.68
+    > omega_0: -87.17
+    > donor weights >1%:
+    >     store 101: 0.0383
+    >     store 102: 0.0350
+    >     store 103: 0.0429
+    >     store 104: 0.0411
+    >     store 105: 0.0390
+    >     store 106: 0.0389
+    >     store 107: 0.0334
+    >     store 108: 0.0366
+    >     store 110: 0.1065
+    >     store 111: 0.1213
+    >     store 112: 0.0444
+    >     store 113: 0.0496
+    >     store 114: 0.0467
+    >     store 115: 0.0437
+    >     store 116: 0.0429
+    >     store 117: 0.0447
+    >     store 118: 0.0433
+    >     store 119: 0.0594
+    >     store 120: 0.0546
+    >     store 121: 0.0376
+    > lambda_0: 4.33
+    > non-uniform time weights: 4 of 77
+    > last 10 pre-period weight: 0.2331
+    > delta_treated: -29.89, delta_control: 7.00
+    > tau: -36.89
+\end{verbatim}
+\begin{lstlisting}
+    results = {
+        'method': [
+            '1. pre-post (store 109 only)',
+            '2. twfe panel (store + time fe)',
+            '3a. simple did (raw means)',
+            '3b. did regression (w/ covariates)',
+            '4. demeaned scm',
+            '5. synthetic did'
+        ],
+        'p1 effect': [33.69, 29.98, 32.22, 29.97, 17.66, 19.54],
+        'p2 effect': [-29.71, -34.29, -22.26, -34.35, -46.00, -36.89]
+    }
+    results_df = pd.DataFrame(results)
+    print(results_df.to_string(index=False))
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    methods_short = ['Pre-Post', 'TWFE', 'DID (raw)', 'DID (reg)', 'SCM', 'SDID']
+
+    for i, (prod, col) in enumerate([('Product 1', 'p1 effect'), ('Product 2', 'p2 effect')]):
+        vals = results_df[col].values
+        colors = ['green' if v > 0 else 'red' for v in vals]
+        axes[i].barh(methods_short, vals, color=colors, alpha=0.7, edgecolor='black')
+        axes[i].set_xlabel('Treatment Effect (units/week)')
+        axes[i].set_title(f'Treatment Effects: {prod}')
+        axes[i].axvline(x=0, color='black', linewidth=0.8)
+        for j, v in enumerate(vals):
+            axes[i].text(v + (1 if v > 0 else -1), j, f'{v:.1f}', va='center',
+                        ha='left' if v > 0 else 'right', fontsize=9)
+
+    plt.tight_layout()
+    plt.show()
+\end{lstlisting}
+\begin{verbatim}
+    > method  p1 effect  p2 effect
+    > 1. pre-post (store 109 only)      33.69     -29.71
+    > 2. twfe panel (store + time fe)      29.98     -34.29
+    > 3a. simple did (raw means)      32.22     -22.26
+    > 3b. did regression (w/ covariates)      29.97     -34.35
+    >                 4. demeaned scm      17.66     -46.00
+    >                 5. synthetic did      19.54     -36.89
+\end{verbatim}
 \end{document}

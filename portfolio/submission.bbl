@@ -19,6 +19,65 @@
 
 \refsection{0}
   \datalist[entry]{nyt/apasortcite//global/global/global}
+    \entry{arkhangelsky2021synthetic}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=e92747bb559098d8f0792154f30c616a}{%
+           family={Arkhangelsky},
+           familyi={A\bibinitperiod},
+           given={Dmitry},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cab7b4f39472e6c01dc0fc30a32c6d89}{%
+           family={Athey},
+           familyi={A\bibinitperiod},
+           given={Susan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c555dd22dbab0489c2f7e2b2882b8534}{%
+           family={Hirshberg},
+           familyi={H\bibinitperiod},
+           given={David\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9f4fa8d00c0311b9cdad0f20ad429e57}{%
+           family={Imbens},
+           familyi={I\bibinitperiod},
+           given={Guido\bibnamedelima W.},
+           giveni={G\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e22c2c3bb1bd12e43f46c07ea788b581}{%
+           family={Wager},
+           familyi={W\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{eb94f6385cf9b5d1d0757c293e931ff4}
+      \strng{fullhash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{fullhashraw}{515b68d68ba8f50152c47ef76433663b}
+      \strng{bibnamehash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authorbibnamehash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authornamehash}{eb94f6385cf9b5d1d0757c293e931ff4}
+      \strng{authorfullhash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authorfullhashraw}{515b68d68ba8f50152c47ef76433663b}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{American Economic Review}
+      \field{number}{12}
+      \field{title}{Synthetic Difference-in-Differences}
+      \field{volume}{111}
+      \field{year}{2021}
+      \field{pages}{4088\bibrangedash 4118}
+      \range{pages}{31}
+      \verb{doi}
+      \verb 10.1257/aer.20190159
+      \endverb
+    \endentry
     \entry{fi16040125}{article}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=08254ff58d5a565f1a2ba5a5938da816}{%
@@ -171,6 +230,47 @@
       \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
       \endverb
       \keyw{eWOM,Source Credibility Theory,Halo Effect,Celebrity endorsement}
+    \endentry
+    \entry{ferman2021synthetic}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=dfe313e5ef19b2c8b09e3b756a1d3cd6}{%
+           family={Ferman},
+           familyi={F\bibinitperiod},
+           given={Bruno},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=665ebe24b3b7c3ada92b83b97d393e08}{%
+           family={Pinto},
+           familyi={P\bibinitperiod},
+           given={Cristine},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{fullhash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{fullhashraw}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{bibnamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorbibnamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authornamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorfullhash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorfullhashraw}{ddffa532a1ff18c212a9072622ae4a2b}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Quantitative Economics}
+      \field{number}{4}
+      \field{title}{Synthetic controls with imperfect pretreatment fit}
+      \field{volume}{12}
+      \field{year}{2021}
+      \field{pages}{1197\bibrangedash 1221}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.3982/QE1596
+      \endverb
     \endentry
     \entry{gohil2025influencer}{article}{}{}
       \name{author}{5}{}{%
@@ -394,6 +494,65 @@
     \endentry
   \enddatalist
   \datalist[entry]{nyt/global//global/global/global}
+    \entry{arkhangelsky2021synthetic}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=e92747bb559098d8f0792154f30c616a}{%
+           family={Arkhangelsky},
+           familyi={A\bibinitperiod},
+           given={Dmitry},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cab7b4f39472e6c01dc0fc30a32c6d89}{%
+           family={Athey},
+           familyi={A\bibinitperiod},
+           given={Susan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c555dd22dbab0489c2f7e2b2882b8534}{%
+           family={Hirshberg},
+           familyi={H\bibinitperiod},
+           given={David\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9f4fa8d00c0311b9cdad0f20ad429e57}{%
+           family={Imbens},
+           familyi={I\bibinitperiod},
+           given={Guido\bibnamedelima W.},
+           giveni={G\bibinitperiod\bibinitdelim W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e22c2c3bb1bd12e43f46c07ea788b581}{%
+           family={Wager},
+           familyi={W\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{eb94f6385cf9b5d1d0757c293e931ff4}
+      \strng{fullhash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{fullhashraw}{515b68d68ba8f50152c47ef76433663b}
+      \strng{bibnamehash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authorbibnamehash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authornamehash}{eb94f6385cf9b5d1d0757c293e931ff4}
+      \strng{authorfullhash}{515b68d68ba8f50152c47ef76433663b}
+      \strng{authorfullhashraw}{515b68d68ba8f50152c47ef76433663b}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{American Economic Review}
+      \field{number}{12}
+      \field{title}{Synthetic Difference-in-Differences}
+      \field{volume}{111}
+      \field{year}{2021}
+      \field{pages}{4088\bibrangedash 4118}
+      \range{pages}{31}
+      \verb{doi}
+      \verb 10.1257/aer.20190159
+      \endverb
+    \endentry
     \entry{fi16040125}{article}{}{}
       \name{author}{3}{}{%
         {{un=0,uniquepart=base,hash=08254ff58d5a565f1a2ba5a5938da816}{%
@@ -546,6 +705,47 @@
       \verb https://www.sciencedirect.com/science/article/pii/S0747563216307506
       \endverb
       \keyw{eWOM,Source Credibility Theory,Halo Effect,Celebrity endorsement}
+    \endentry
+    \entry{ferman2021synthetic}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=dfe313e5ef19b2c8b09e3b756a1d3cd6}{%
+           family={Ferman},
+           familyi={F\bibinitperiod},
+           given={Bruno},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=665ebe24b3b7c3ada92b83b97d393e08}{%
+           family={Pinto},
+           familyi={P\bibinitperiod},
+           given={Cristine},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{fullhash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{fullhashraw}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{bibnamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorbibnamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authornamehash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorfullhash}{ddffa532a1ff18c212a9072622ae4a2b}
+      \strng{authorfullhashraw}{ddffa532a1ff18c212a9072622ae4a2b}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Quantitative Economics}
+      \field{number}{4}
+      \field{title}{Synthetic controls with imperfect pretreatment fit}
+      \field{volume}{12}
+      \field{year}{2021}
+      \field{pages}{1197\bibrangedash 1221}
+      \range{pages}{25}
+      \verb{doi}
+      \verb 10.3982/QE1596
+      \endverb
     \endentry
     \entry{gohil2025influencer}{article}{}{}
       \name{author}{5}{}{%

@@ -1,13 +1,13 @@
 # Fdb version 4
-["biber submission"] 1774025143.0443 "submission.bcf" "submission.bbl" "submission" 1774031394.51686 0
-  "sources.bib" 1770890001.36304 6017 3348315da24b3b2a37ae9ea61d06c773 ""
-  "submission.bcf" 1774031393.96628 134760 27df35ba145c2c2184267e32615e0367 "pdflatex"
+["biber submission"] 1776262212.54513 "submission.bcf" "submission.bbl" "submission" 1776263947.75045 0
+  "sources.bib" 1776256362.01691 6677 bb5be1c2041a26adb2237cdc3a6a8cef ""
+  "submission.bcf" 1776263947.5674 134991 19da9aa66d7be92dd354acab558289ac "pdflatex"
   (generated)
   "submission.bbl"
   "submission.blg"
   (rewritten before read)
-["pdflatex"] 1774031391.33502 "/Users/jakobsverrealexandersen/Documents/Marketing-analysis-of-exp.-GRA4158/portfolio/submission.tex" "submission.pdf" "submission" 1774031394.51789 0
-  "/Users/jakobsverrealexandersen/Documents/Marketing-analysis-of-exp.-GRA4158/portfolio/submission.tex" 1774031390.53927 95322 6db4c85e1be0adf243c314f5d46aae06 ""
+["pdflatex"] 1776263944.95584 "/Users/jakobsverrealexandersen/Documents/Marketing-analysis-of-exp.-GRA4158/portfolio/submission.tex" "submission.pdf" "submission" 1776263947.75091 0
+  "/Users/jakobsverrealexandersen/Documents/Marketing-analysis-of-exp.-GRA4158/portfolio/submission.tex" 1776263941.34695 142435 f9f079df2006982f860f74f0b53bf44a ""
   "/Users/jakobsverrealexandersen/Library/Application" 1765462360.28431 58 5be58d25415c6b0826fe498532e200cf ""
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map" 1772096847.91448 85026 eb5c82127a8118f6880fc77f906c4b6b ""
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1000.pk" 1744540813.57998 11548 0b94a34568be8fa29753d7fc570ea10e ""
@@ -215,13 +215,20 @@
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xkeyval/xkeyval.sty" 1744540152.76321 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
   "/Users/jakobsverrealexandersen/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xurl/xurl.sty" 1770897028.69582 4675 e4b8c405820368c2dfb03526e16d725a ""
   "2026-03-20-19-01-29.png" 1774029689.87295 26595 3edf9ee641dea5d34be5e6d5d890c14e ""
+  "2026-04-15-11-56-16.png" 1776246977.50456 161330 cab7ab6b701136e6d0f8fd273d0bc597 ""
+  "2026-04-15-14-07-51.png" 1776254872.48039 104486 df8f7ab63572a3a28fe9042eaffe2244 ""
+  "2026-04-15-14-08-27.png" 1776254908.62286 114902 3a1334150fff1e91592182fac00967a8 ""
+  "2026-04-15-14-24-42.png" 1776255883.12905 114062 b64d4163ba9e68ef11857434889fa331 ""
+  "2026-04-15-14-24-52.png" 1776255893.01935 141038 11351bfcef8145db55d08b148cb5207b ""
+  "2026-04-15-15-05-51.png" 1776258352.16812 86805 c6e1707e47da57dc13a479bc16238536 ""
+  "2026-04-15-15-06-02.png" 1776258362.97002 103960 93f342900911d7c093f9d2da0c6c2b17 ""
   "image1.png" 1770843290.00861 93843 91b215cff44baa5b6e3cb39a2e32a0b2 ""
-  "submission.aux" 1774031393.95044 9004 9b649de9647c6258ffbb4f655bacc7a7 "pdflatex"
-  "submission.bbl" 1774025144.72702 36726 54a4d8531c48db8b01c773022b070cf2 "biber submission"
-  "submission.out" 1774031393.95867 7394 c02215801345d764daca5868b871c81d "pdflatex"
-  "submission.run.xml" 1774031393.96845 2466 d3a21e049683970cfb7827b86e451b7d "pdflatex"
-  "submission.tex" 1774031390.53927 95322 6db4c85e1be0adf243c314f5d46aae06 ""
-  "submission.toc" 1774031393.96865 3700 31bf4b07c5484a45a0b4844db63bebb3 "pdflatex"
+  "submission.aux" 1776263947.54571 10889 eb31cde3005058bfaae015072d35eef1 "pdflatex"
+  "submission.bbl" 1776262214.77501 44796 d41c2342cb8413eea758e17e911356a4 "biber submission"
+  "submission.out" 1776263947.5574 9494 681453043e5775cf4d19c6464ae2b291 "pdflatex"
+  "submission.run.xml" 1776263947.5687 2466 d3a21e049683970cfb7827b86e451b7d "pdflatex"
+  "submission.tex" 1776263941.34695 142435 f9f079df2006982f860f74f0b53bf44a ""
+  "submission.toc" 1776263947.56881 4559 1fb19ecea980480709c3cf55f604c575 "pdflatex"
   (generated)
   "submission.aux"
   "submission.bcf"

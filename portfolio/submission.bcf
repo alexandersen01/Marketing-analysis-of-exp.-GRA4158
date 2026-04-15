@@ -3090,6 +3090,9 @@
     <bcf:citekey order="18" intorder="1">braun2025abtesting</bcf:citekey>
     <bcf:citekey order="19" intorder="1">gordon2019comparison</bcf:citekey>
     <bcf:citekey order="20" intorder="1">gordon2019comparison</bcf:citekey>
+    <bcf:citekey order="21" intorder="1">ferman2021synthetic</bcf:citekey>
+    <bcf:citekey order="22" intorder="1">ferman2021synthetic</bcf:citekey>
+    <bcf:citekey order="23" intorder="1">arkhangelsky2021synthetic</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nyt">
